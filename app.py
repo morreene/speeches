@@ -288,11 +288,11 @@ def build_prompt_with_context(topic, context=[],  nwords=200, audience='governme
 
 
 
-def write_speech(topic, context, nwords, audience, model="gpt-35-turbo"):
+def write_speech(topic, context, nwords, audience, model="gpt-35-turbo", temperature=0):
     response = openai.ChatCompletion.create(
         engine=model,
         messages=build_prompt_with_context(topic=topic, context=context,nwords=nwords, audience=audience),
-        temperature=0.8,
+        temperature=temperature,
         max_tokens=3000,
     )
     # Strip any punctuation or whitespace from the response
@@ -614,6 +614,28 @@ def render_page_content(pathname, logout_pathname):
                 style={"margin-bottom": "10px"},
             ),
 
+            dbc.Row(
+                [
+                    dbc.Col(html.Label("Temperature:"), width="auto",  style={'margin-top':5,'margin-left':10}),
+                    dbc.Col(
+                        dbc.RadioItems(
+                            id="radio-select-temperature",
+                            options=[
+                                {"label": "0", "value": 0},
+                                {"label": "0.5", "value": 0.5},
+                                {"label": "1", "value": 1},
+                            ],
+                            value=0,
+                            inline=True,
+                        ),
+                        width=True,
+                    ),
+                ],
+                align="center",
+                style={"margin-bottom": "10px"},
+            ),
+
+
 
             html.Br(),
             html.Br(),
@@ -889,10 +911,11 @@ def search(n_clicks, n_submit, search_terms, top):
         ], 
         [State("search-box2", "value"),
          State('radio-select-top2', 'value'),
-         State('radio-select-words', 'value')
+         State('radio-select-words', 'value'),
+         State('radio-select-temperature', 'value')
         ]
         )
-def chat(n_clicks, n_submit, query, model, words):
+def chat(n_clicks, n_submit, query, model, words, temperature):
     # Check if the search button was clicked
     # if (n_clicks <=0 and n_submit is None) or search_terms=='' or search_terms is None:
     if (n_clicks <=0 and n_submit is None) or query=='' or query is None:
@@ -910,7 +933,8 @@ def chat(n_clicks, n_submit, query, model, words):
         model="gpt-4"
         model=model
 
-        chatgpttpr = write_speech(topic, context, nwords, audience, model)
+
+        chatgpttpr = write_speech(topic, context, nwords, audience, model,temperature)
 
     return html.Div(
     dbc.Container(
