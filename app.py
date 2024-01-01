@@ -292,7 +292,7 @@ def write_speech(topic, context, nwords, audience, model="gpt-35-turbo"):
     response = openai.ChatCompletion.create(
         engine=model,
         messages=build_prompt_with_context(topic=topic, context=context,nwords=nwords, audience=audience),
-        temperature=0,
+        temperature=0.8,
         max_tokens=3000,
     )
     # Strip any punctuation or whitespace from the response
