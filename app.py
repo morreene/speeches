@@ -325,7 +325,7 @@ app = Dash(__name__, server=server,
            suppress_callback_exceptions=True
            )
 
-app.title = 'WTO TPR Report Database'
+app.title = 'Speech Database'
 app.index_string = """<!DOCTYPE html>
 <html>
     <head>
@@ -423,7 +423,7 @@ app.layout = html.Div([
                 dbc.Card(
                     dbc.CardBody(
                         [
-                            html.H5("Sign in to TPR ReportsData", className="card-title"),
+                            html.H5("Sign in to Speech Database", className="card-title"),
                             html.Br(),
                             dbc.Form(
                                 [
@@ -762,7 +762,7 @@ def render_page_content(pathname, logout_pathname):
             ]), pathname
     elif pathname == "/page-5":
         return html.Div([
-                            html.H4("About the tools and the TPR report dataset", className="display-about"),
+                            html.H4("About the tools and the Speech Database", className="display-about"),
                             html.Br(),
                             dcc.Markdown(markdown_about, id='topic',
                                          style={
