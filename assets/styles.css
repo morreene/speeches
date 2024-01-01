@@ -1,0 +1,75 @@
+/* styles.css */
+.search-container {
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 0.5s ease;
+}
+
+.results-container {
+    margin-top: 100px;
+    text-align: center;
+}
+
+.offcanvas {
+    width: 600px !important;
+}
+
+
+
+
+/* test */
+.result-info {
+    margin-bottom: 10px;
+}
+
+.result-info strong {
+    font-weight: bold;
+}
+
+.result-info p {
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+.result-info::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.result-info div {
+    float: left;
+    width: 50%;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-row .time {
+    font-weight: bold;
+}
+
+.info-row .author {
+    margin-left: 10px;
+}
+
+
+.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+
+
+
+#search-button, #search-button2, #login-button {
+    background-color: rgb(98, 186, 181);
+    border-color: rgb(98, 186, 181);
+}
+

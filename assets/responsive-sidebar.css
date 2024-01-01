@@ -1,0 +1,210 @@
+#sidebar {
+  text-align: center;
+  padding: 2rem 1rem;
+  padding: 2rem 0rem;
+  /* background-color: #f8f9fa;
+  background-color: #bbd9f7;
+  background-color: #eeeeee;
+  background-color: #222d32; */
+  background-color: #e4f5f2;
+  /* color: #b8c7ce; */
+  color: #3F4F75;
+}
+
+#sidebar h2 {
+  text-align: left;
+  color: #eee;
+}
+
+/* #sidebar a {
+    color: #b8c7ce;
+} */
+
+#sidebar a {
+    color: #3F4F75;
+}
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+    background-color: #3c8dbc;
+    background-color: #e4f5f2;
+    color: #333;
+    text-decoration: underline;
+    border-left: 4px solid rgb(98, 186, 181);
+        /* border-left: 4px solid #52555f; */
+}
+.nav-link {
+    border-left: 4px #e4f5f2;
+    padding: .5rem 1rem;
+    border-left: 4px solid #52555f;
+        background: #d6f0eb;
+}
+.nav-link.active {
+    border-left: 4px solid rgb(98, 186, 181);
+    color: #333;
+    background: #c7eae4;
+}
+
+
+.display-logo {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-left: 10px;
+margin-right: 10px;
+}
+
+.display-about {
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.2;
+    /* margin-left: 10px;
+margin-right: 10px; */
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Hide the blurb on a small screen */
+#blurb {
+  display: none;
+}
+
+#collapse {
+  margin-top: 1rem;
+}
+
+@media (min-width: 48em) {
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 16rem;
+    width: 14rem;
+    text-align: left;
+  }
+
+  /* reveal the blurb on a large screen */
+  #blurb {
+    display: block;
+    font-size: 14px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+  #blurb-bottom {
+    display: block;
+    font-size: 12px;
+    margin-left: 10px;
+    margin-right: 10px;
+    position: absolute;
+bottom: 0;
+  }
+
+  /* Hide the toggle on a large screen */
+  #toggle {
+    display: none;
+  }
+
+  #collapse {
+    display: block;
+    margin-top: 0;
+  }
+}
+
+/* add the three horizontal bars icon for the toggle */
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba(0, 0, 0, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+#page-content {
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 48em) {
+  /* set margins of the main content so that it doesn't overlap the sidebar */
+  #page-content {
+    margin-left: 16rem;
+    margin-right: 2rem;
+    width: 50%
+  }
+}
+
+/* my adjustment*/
+
+.form-control {
+    display: inline-block;
+    width: 80%;
+}
+
+.mr-2 {
+      vertical-align: top;
+      margin-left: 20px;
+
+}
+
+
+
+.alert-info {
+    color: #999;
+    background-color: #fafafa;
+    border-color: #eee;
+}
+
+blockquote {
+    border-left: 4px solid rgb(98, 186, 181);
+    padding-left: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    margin-left: 0rem;
+    font-style: italic;
+    font-size: 0.85em;
+    background-color: rgb(237, 249, 247);
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+/* .sidebar a.active {
+    background-color: white;
+    border-right: solid #20293d 4px;
+} */
+
+/* markdown table */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* image in the markdown */
+img[src*="../assets/image01.png"] {
+  width:100%;
+  height:auto;
+}
+
+
+
+
+
+
+
+
