@@ -26,6 +26,160 @@ openai.api_key = API_KEY
 openai.api_base = RESOURCE_ENDPOINT
 openai.api_version = "2023-07-01-preview"
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##### pinecone
+index_name = 'semantic-search-openai'
+
+# initialize connection to pinecone (get API key at app.pinecone.io)
+pinecone.init(
+    api_key="b5d40c2b-abda-4590-8cb5-06251507c483",
+    environment="asia-southeast1-gcp-free"  # find next to api key in console
+)
+
+# # check if 'openai' index already exists (only create index if not)
+# if index_name not in pinecone.list_indexes():
+#     pinecone.create_index(index_name, dimension=1536)
+    
+# connect to index
+index = pinecone.Index(index_name)
+
+#################################################
+#####     Functions
+#################################################
+
+##### search document data with openai embedding
+def search_docs(user_query, top=200):
+    xq = get_embedding(
+        user_query,
+        engine="test-embedding-ada-002" # engine should be set to the deployment name you chose when you deployed the test-embedding-ada-002 (Version 2) model
+    )
+
+    res = index.query([xq], top_k=top, include_metadata=True)
+
+    data = res.to_dict()
+    # Create an empty list to store the transformed data
+    transformed_data = []
+
+    # Iterate over the matches and extract relevant information
+    for match in data['matches']:
+        metadata = match.get('metadata', {})
+        row = {
+            'id': match['id'],
+            'score': match['score'],
+            **metadata
+        }
+        transformed_data.append(row)
+
+    # Create a DataFrame from the transformed data
+    df = pd.DataFrame(transformed_data)
+    # print(df.dtypes)
+    df['date'] = df['date'].astype(str)
+    
+    return df
+
+##### ChatGPT augmented generative question answering
+# def get_completion(prompt, model="gpt-35-turbo"):
+def get_completion(prompt, model="gpt-4"):
+    messages = [{"role": "system", "content":  "You are a Q&A assistant." },
+                {"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        engine=model,
+        messages=messages,
+        # temperature=0.8, # this is the degree of randomness of the model's output
+        temperature=0, # this is the degree of randomness of the model's output
+        max_tokens=500,
+        top_p=0.95,
+        frequency_penalty=0,
+        presence_penalty=0,
+        stop=None
+    )
+    return response.choices[0].message["content"]
+
+# prompt with context
+limit = 10000
+def retrieve(query):
+    res = openai.Embedding.create(
+        input=[query],
+        engine='test-embedding-ada-002'
+    )
+
+    # retrieve from Pinecone
+    xq = res['data'][0]['embedding']
+
+    # get relevant contexts
+    res = index.query(xq, top_k=50, include_metadata=True)
+    contexts = [
+        '('+ x['metadata']['member'] + ') (' + x['metadata']['symbol'] + ') paragraph ' + x['metadata']['text'][0:400] for x in res['matches']
+    ]
+
+    # build our prompt with the retrieved contexts included
+    prompt_start = (
+        # "Answer the following question based on the context provided below, which are the relevant paragraphs from the WTO member's TPR reports. Paragraph start with a country name, a document symbol and a paragraph number. \n\n"+
+        # "In the answers, be sure to add document symbols and paragraph numbers as references for finding in the answer. \n\n"+
+        # "If you don't know the answer, just say that you don't know. Don't try to make up an answer. Do not answer beyond this context. \n\n"+
+        # "Context:\n"
+        "Answer the following question based on the context provided below, which are the relevant paragraphs from the WTO member's TPR reports.  \n\n" +
+        "Paragraph start with a country name, a document symbol and a paragraph number. \n\n" +
+        "In your answers, be sure to add document symbols and paragraph numbers as references for finding in the answer. \n\n" +
+        "If you don't know the answer, just say that you don't know. Don't try to make up an answer. Do not answer beyond this context. \n\n" +
+        "Context:\n"
+    )
+    prompt_end = (
+        f"\n\nQuestion: {query}\n\nAnswer:"
+    )
+    # append contexts until hitting limit
+    for i in range(1, len(contexts)):
+        if len("\n\n---\n\n".join(contexts[:i])) >= limit:
+            prompt = (
+                prompt_start +
+                "\n\n---\n\n".join(contexts[:i-1]) +
+                prompt_end
+            )
+            break
+        elif i == len(contexts)-1:
+            prompt = (
+                prompt_start +
+                "\n\n---\n\n".join(contexts) +
+                prompt_end
+            )
+    return prompt
+
+
 #################################################
 #####     Load data 
 #################################################
@@ -33,33 +187,54 @@ openai.api_version = "2023-07-01-preview"
 with open('data/about.md', 'r') as markdown_file:
     markdown_about = markdown_file.read()
 
-# matrix = pd.read_pickle("data/tpr_matrix.pickle")
-# matrix.index.name = None
+matrix = pd.read_pickle("data/tpr_matrix.pickle")
+matrix.index.name = None
 
-# member_list = pd.read_pickle("data/all_mem.pickle")
-# member_list = member_list['Member'].tolist()
-# member_list = ['All Members'] + member_list
+member_list = pd.read_pickle("data/all_mem.pickle")
+member_list = member_list['Member'].tolist()
+member_list = ['All Members'] + member_list
 
-# cat_list = pd.read_pickle("data/all_cat.pickle")
-# cat_list = cat_list['Topic'].tolist()
-# cat_list = ['All topics (slow loading)'] + cat_list
+cat_list = pd.read_pickle("data/all_cat.pickle")
+cat_list = cat_list['Topic'].tolist()
+cat_list = ['All topics (slow loading)'] + cat_list
 
 # tags for topic keywords
 tags = {
-    'Africa':               'Africa trade African Continental Free Trade Area (AfCFTA)',
-    'COVID-19':               'covid vaccine',
-    'Digital trade':          'digital trade ecommerce moratorium on electronic transmissions',
-    'E-commerce':            'ecommerce',
-    'Environment':          'environment climate polution environmental protection',
-    'Geopolitics':               'geopolitics US-China geopolitical',
-    'Global economy':               'global economy GDP growth trend',
-    'Intellectual property': 'intellectual property rights',
-    'MSME':                 'micro small and medium enterprises',
-    'Subsidies':            'industrial subsidies grant',
+    'aid for trade':        'aid for trade',
+    'competition':          'competition price control anti-competitive',
+    'ecommerce':            'ecommerce',
+    'environment':          'environment climate polution environmental protection',
+    'intellectual property': 'intellectual property rights',
+    'msme':                 'micro small and medium enterprises',
+    'subsidies':            'industrial subsidies grant',
+    'tariff':               'tariff duties',
 }
 
-speechdb = pd.read_parquet('data/speech-text-embedding.parquet')
-matrix = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -69,7 +244,7 @@ matrix = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NPa
 #################################################
 
 # search through the reviews for a specific product
-def search_speech_db(df, user_query, ncontext=20):
+def search_speech_db(df, user_query, top_n=3):
     embedding = get_embedding(
         user_query,
         engine="test-embedding-ada-002" # engine should be set to the deployment name you chose when you deployed the text-embedding-ada-002 (Version 2) model
@@ -78,22 +253,22 @@ def search_speech_db(df, user_query, ncontext=20):
 
     res = (
         df.sort_values("similarities", ascending=False)
-        .head(ncontext)
+        .head(top_n)
     )
     return res
 
-def generate_context(topic, ncontext=20):
-    res = search_speech_db(speechdb, topic, ncontext=ncontext)
+speechdb = pd.read_parquet('data/speech-text-embedding.parquet')
+matrix = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
+
+
+def generate_context(topic, top_n=10):
+    res = search_speech_db(speechdb, topic, top_n=top_n)
     return res['Text'].to_list()
 
-def build_prompt_with_context(topic, context=[], nwords=300, audience='government officials'):
+def build_prompt_with_context(topic, context=[],  nwords=200, audience='government officials'):
     return [{'role': 'system', 
-             'content': f'''As a speech writer, you are tasked with composing a speech for the Director General of the World Trade Organization. \
-                            The speech should address the specific topic provided by the user, incorporating relevant contexts and information as mentioned. \
-                            Ensure that the speech mirrors the style of the context given, adhering to the specified tone - be it formal, persuasive, informative, or any other. \
-                            Additionally, the speech should be tailored to meet the exact length requirement set by the user, specified in the number of words. \
-                            Your goal is to craft a speech that effectively conveys the WTO's perspective on the given topic, while maintaining the Director General's tone and style.'''
-                    }, 
+             'content': f'''You are a speech writer. Write a speech about the topic and based on the contexts provided by user. 
+                        Please use the same style as the context and follow the requirements.'''}, 
             {'role': 'user', 
              'content': f"""
                         Topic:
@@ -111,15 +286,22 @@ def build_prompt_with_context(topic, context=[], nwords=300, audience='governmen
                         Speech:
             """}]
 
-def write_speech(message, temperature=0, model="gpt-35-turbo"):
+
+
+def write_speech(topic, context, nwords, audience, model="gpt-35-turbo", temperature=0):
     response = openai.ChatCompletion.create(
         engine=model,
-        messages=message,
+        messages=build_prompt_with_context(topic=topic, context=context,nwords=nwords, audience=audience),
         temperature=temperature,
-        max_tokens=4000,
+        max_tokens=3000,
     )
     # Strip any punctuation or whitespace from the response
     return response.choices[0].message.content.strip('., ')
+
+
+
+
+
 
 
 #################################################
@@ -199,8 +381,8 @@ sidebar = html.Div([
                     # use the Collapse component to animate hiding / revealing links
                     dbc.Collapse(
                         dbc.Nav([
-                                dbc.NavLink("Write", href="/page-2", id="page-2-link"),
                                 dbc.NavLink("Search ", href="/page-1", id="page-1-link"),
+                                dbc.NavLink("Write", href="/page-2", id="page-2-link"),
                                 dbc.NavLink("Browse by topics", href="/page-3", id="page-3-link"),
                                 dbc.NavLink("Speech List", href="/page-4", id="page-4-link"),
                                 dbc.NavLink("About", href="/page-5", id="page-5-link"),
@@ -208,7 +390,7 @@ sidebar = html.Div([
                             ], vertical=True, pills=False,
                         ), id="collapse",
                     ),
-                    html.Div([html.P("V0.2 (20240111)",
+                    html.Div([html.P("V0.9 (20230929)",
                                 # className="lead",
                             ),],id="blurb-bottom",
                     ),
@@ -383,8 +565,8 @@ def render_page_content(pathname, logout_pathname):
             dbc.Row([
                 dbc.Col(
                         dbc.InputGroup([
-                                dbc.Input(id="search-box2", type="text", placeholder="Topics: e.g. globalization and reglobalization"),
-                                dbc.Button(" Write about ...", id="search-button2", n_clicks=0),
+                                dbc.Input(id="search-box2", type="text", placeholder="Topics: e.g. globalization and reglobalization", ),
+                                dbc.Button(" Write ", id="search-button2", n_clicks=0),
                             ]
                         ), width=12,
                     ),
@@ -393,15 +575,15 @@ def render_page_content(pathname, logout_pathname):
             html.Br(),
             dbc.Row(
                 [
-                    dbc.Col(html.Label('Number of "contexts": '), width="auto", style={'margin-top':5,'margin-left':10}),
+                    dbc.Col(html.Label("Select model:"), width="auto", style={'margin-top':5,'margin-left':10}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="radio-select-top2",
                             options=[
-                                {"label": '20', "value": 20},
-                                {"label": '30', "value": 30},
+                                {"label": 'ChatGPT 3.5', "value": 'gpt-35-turbo'},
+                                {"label": 'ChatGPT 4', "value": 'gpt-4'},
                             ],
-                            value=20,
+                            value='gpt-4',
                             inline=True,
                         ),
                         width=True,
@@ -418,7 +600,7 @@ def render_page_content(pathname, logout_pathname):
                         dbc.RadioItems(
                             id="radio-select-words",
                             options=[
-                                {"label": "200 words", "value": 200},
+                                {"label": "100 words", "value": 100},
                                 {"label": "300 words", "value": 300},
                                 {"label": "500 words", "value": 500},
                             ],
@@ -436,32 +618,41 @@ def render_page_content(pathname, logout_pathname):
                 [
                     dbc.Col(html.Label("Temperature:"), width="auto",  style={'margin-top':5,'margin-left':10}),
                     dbc.Col(
-                        dcc.Slider(0, 1, 0.1,
-                                value=0.5,
-                                id='slider-temperature',
-                        ),style={"margin-top": "20px"},
+                        dbc.RadioItems(
+                            id="radio-select-temperature",
+                            options=[
+                                {"label": "0", "value": 0},
+                                {"label": "0.5", "value": 0.5},
+                                {"label": "1", "value": 1},
+                            ],
+                            value=0,
+                            inline=True,
+                        ),
+                        width=True,
                     ),
                 ],
                 align="center",
-                style={"margin-bottom": "1px"},
+                style={"margin-bottom": "10px"},
             ),
 
 
-            html.Hr(),
-            # html.Br(),
+
+            html.Br(),
+            html.Br(),
             dbc.Row([
                 dbc.Col([
-                    dcc.Markdown('''
-                                Sample topics:
-                                - Trade and environment
-                                - Globalization and re-globalization
-                                - WTO and multilateral trading system
-                                - US and China trade war
-                                - Trade finance
-                                - Aid for trade 
-                                - Least developed country members
-                                - Africa and global trade
-                                - Digital trade '''
+                    dcc.Markdown(
+                        '''
+                        Sample topics:
+                        - Trade and environment
+                        - Globalization and re-globalization
+                        - WTO and multilateral trade system
+                        - US and China trade war
+                        - Trade finance
+                        - Aid for trade 
+                        - least developed country members
+                        - Africa and global trade
+                        '''
                         ),
                 ], width=12),
             ], justify="center", className="header", id='sample-queries2'),
@@ -478,6 +669,73 @@ def render_page_content(pathname, logout_pathname):
         return dbc.Container([
             html.H6("Browse reports by topics", className="display-about"),
             html.Br(),
+            # dbc.Row([
+            #     dbc.Col(
+            #             dbc.InputGroup([
+            #                     dbc.Input(id="search-box2", type="text", placeholder="Example: How governments regulate wildlife trade?", ),
+            #                     dbc.Button(" Query ChatGPT and TPR data ", id="search-button2", n_clicks=0,
+            #                                     #    className="btn btn-primary mt-3", 
+            #                                 ),
+
+
+            #                 ]
+            #             ), width=12,
+            #         ),
+            #     ], justify="center", className="header", id='search-container2'
+            # ),
+            # html.Br(),
+            # dbc.Row(
+            #     [
+            #         dbc.Col(html.Label("Select OpenAI model:"), width="auto", style={'margin-top':5,'margin-left':10}),
+            #         dbc.Col(
+            #             dbc.RadioItems(
+            #                 id="radio-select-top2",
+            #                 options=[
+            #                     # {"label": "text-ada", "value": 'text-ada-001'},
+            #                     # {"label": 'text-curie-001', "value": 'text-curie-001'},
+            #                     # {"label": 'text-davinci-003', "value": 'text-davinci-003'},
+            #                     {"label": 'ChatGPT (gpt-3.5-turbo)', "value": 'gpt-35-turbo'},
+            #                 ],
+            #                 value='gpt-35-turbo',
+            #                 inline=True,
+            #             ),
+            #             width=True,
+            #         ),
+            #     ],
+            #     align="center",
+            #     style={"margin-bottom": "10px"},
+            # ),
+            # html.Br(),
+            # html.Br(),
+            # dbc.Row([
+            #     dbc.Col([
+            #         dcc.Markdown(
+            #             '''
+            #             This Q&A tool is designed to answer questions related to international trade. It provides responses derived from two sources: ChatGPT and TPR data. The tool offers 
+            #             both the answers generated solely by ChatGPT and the responses that source information from TPR reports. [More information ...](/page-4)
+
+            #             Below are some sample questions
+
+            #             - How WTO members protect biodiversity through their trade policy?
+            #             - How Tariff Rate Quota (TRQ) is administered by WTO members?
+            #             - How WTO members subsidize energy and fossil fuel sector?
+            #             - How WTO members promote environmental services?
+            #             - How governments regulate wildlife trade?
+            #             - Are there policies used by WTO members support the circular economy?
+            #             - What kinds of trade restrictions have been used by WTO Members? (*)
+            #             - What kinds of export restrictions are imposed by the WTO members? (*)
+            #             - Which WTO members provide the export subsidies and on what products? (***)
+            #             - Tell me the members impose export tariffs, taxes or duties. (*)
+            #             - How the United States trade policy changed in the past 5 years? (**)
+            #             - How anti-dumping measures are used by WTO members?
+            #             '''
+            #             ),
+            #     ], width=12),
+            # ], justify="center", className="header", id='sample-queries2'),
+            # html.Br(),
+            # html.Br(),
+            # html.Div(id='tag-container', children=[html.Button(tag['Tag'], id={'type': 'tag', 'index': i}) for i, tag in enumerate(tags)]),
+            # html.Div(id='tag-container', children=[html.Button(key, id={'type': 'tag', 'index': i}) for i, key in enumerate(tags)]),
             html.Div(id='tag-container', children=[dbc.Button(key, id={'type': 'tag', 'index': i}, color="light", className="me-1", style={'margin-right':'10px', 'margin-bottom':'10px'}) for i, key in enumerate(tags)]),
             html.Br(),
             dbc.Row([ 
@@ -540,12 +798,29 @@ def search(n_clicks, n_submit, search_terms, top):
     if (n_clicks <=0 and n_submit is None) or search_terms=='' or search_terms is None:
         return "",  None
     else:
-        df = search_speech_db(speechdb, search_terms, ncontext=top)
+        
+        
+        
+        
+        # df = search_docs(search_terms, top = top)
+        
+        # csv_string = df.to_csv(index=False, encoding='utf-8')
+        # csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
+
+        df = search_speech_db(speechdb, search_terms, top_n=top)
+        # df['meta'] = df['FileName'] + '\n' + df['symbol'] + '\n' + df['date'] + '\n Score: ' + df['score'].astype(str) 
         df['meta'] = df['FileName'] + '\n Para: ' + df['ParagraphID'].astype(str) + '\n Score: ' + df['similarities'].astype(str) 
         df['text'] = df['Text']
 
         matches = df[['meta', 'text']]
         matches.columns = ['Meta','Text (Paragraph)']
+
+
+
+        
+
+        # matches = df[['FileName', 'Text']]
+
 
         # Display the results in a datatable
         return html.Div(style={'width': '100%'},
@@ -637,49 +912,50 @@ def search(n_clicks, n_submit, search_terms, top):
         [State("search-box2", "value"),
          State('radio-select-top2', 'value'),
          State('radio-select-words', 'value'),
-         State('slider-temperature', 'value')
+         State('radio-select-temperature', 'value')
         ]
         )
-def chat(n_clicks, n_submit, topic, ncontext, nwords, temperature):
+def chat(n_clicks, n_submit, query, model, words, temperature):
     # Check if the search button was clicked
     # if (n_clicks <=0 and n_submit is None) or search_terms=='' or search_terms is None:
-    if (n_clicks <=0 and n_submit is None) or topic=='' or topic is None:
+    if (n_clicks <=0 and n_submit is None) or query=='' or query is None:
         return "",  None
     else:
-        
-        audience = 'delegates to the WTO'
-        model="gpt-4"
+
         # topic = 'reglobalization'
         # topic = 'trade under most favoriate nation principle'
         # topic = 'ecommerce'
-        # topic = 'trade in Africa'
-        # topic = 'Trade and environment'
-        # topic = "China and US trade war"
-        # topic = topic
-        # ncontext = 20
-        context = generate_context(topic, ncontext)
+        topic = query
+        context = generate_context(topic, 50)
+        nwords = words
+        audience = 'students'
+        audience = 'delegates to the WTO'
+        model="gpt-4"
+        model=model
 
-        # nwords = 300
-        message = build_prompt_with_context(topic, context, nwords, audience)
 
-        # temperature = 0
-        draft = write_speech(message, temperature, model=model)
+        chatgpttpr = write_speech(topic, context, nwords, audience, model,temperature)
 
     return html.Div(
     dbc.Container(
         [
             dbc.Row(
-                [html.P('Draft (' + str(len(draft.split()))  +" words): ")],
+                [
+                    html.P('Draft:'),
+                ],
                 justify="between",
                 style={"margin-bottom": "5px"},
             ),
             dbc.Row(
-                [html.P(dcc.Markdown(draft))],
+                [
+                    html.P(dcc.Markdown(chatgpttpr))
+                ],
                 justify="between",
             ),
         ],
     )
 ),  {'display': 'none'}
+ 
 
 
 #################################################
@@ -701,7 +977,7 @@ def update_table(*args):
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     tag_clicked = ctx.states[button_id + '.children']
 
-    df = search_speech_db(speechdb, tags[tag_clicked], ncontext=50)
+    df = search_speech_db(speechdb, tags[tag_clicked], top_n=200)
     # df['meta'] = df['FileName'] + '\n' + df['symbol'] + '\n' + df['date'] + '\n Score: ' + df['score'].astype(str) 
     df['meta'] = df['FileName'] + '\n Para: ' + df['ParagraphID'].astype(str) + '\n Score: ' + df['similarities'].astype(str) 
     df['text'] = df['Text']
