@@ -111,7 +111,7 @@ def build_prompt_with_context(topic, context=[], nwords=300, audience='governmen
                         Speech:
             """}]
 
-def write_speech(message, temperature=0, model="gpt-35-turbo"):
+def write_speech(message, temperature=0, model="gpt-4"):
     response = openai.ChatCompletion.create(
         engine=model,
         messages=message,
@@ -679,18 +679,22 @@ def search(n_clicks, n_submit, search_terms, top):
          Output("sample-queries2", "style")
         ],
         [Input("search-button2", "n_clicks"),
-         Input("search-box2", "n_submit")
+        #  Input("search-box2", "n_submit")
         ], 
         [State("search-box2", "value"),
          State('radio-select-top2', 'value'),
          State('radio-select-words', 'value'),
          State('slider-temperature', 'value')
-        ]
-        )
-def write(n_clicks, n_submit, topic, ncontext, nwords, temperature):
+         ]
+)
+# def write_speech(n_clicks, n_submit, topic, ncontext, nwords, temperature):
+def write_draft_speech(n_clicks, topic, ncontext, nwords, temperature):
+
     # Check if the search button was clicked
+
     # if (n_clicks <=0 and n_submit is None) or search_terms=='' or search_terms is None:
-    if (n_clicks <=0 and n_submit is None) or topic=='' or topic is None:
+    # if (n_clicks <=0 and n_submit is None) or topic=='' or topic is None:
+    if (n_clicks is None) or topic=='' or topic is None:
         return "",  None
     else:
         
@@ -710,7 +714,7 @@ def write(n_clicks, n_submit, topic, ncontext, nwords, temperature):
         message = build_prompt_with_context(topic, context, nwords, audience)
 
         # temperature = 0
-        draft = write_speech(message, temperature, model=model)
+        draft = write_speech(message, temperature, model)
 
     return html.Div(
     dbc.Container(
