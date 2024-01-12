@@ -291,25 +291,25 @@ def render_page_content(pathname, logout_pathname):
                 ], justify="center", className="header", id='search-container2'
             ),
             html.Br(),
-            dbc.Row(
-                [
-                    dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
-                    dbc.Col(
-                        dbc.RadioItems(
-                            id="write-radio-select-context",
-                            options=[
-                                {"label": '20', "value": 20},
-                                # {"label": '30', "value": 30},
-                            ],
-                            value=20,
-                            inline=True,
-                        ),
-                        width=True,
-                    ),
-                ],
-                align="center",
-                style={"margin-bottom": "10px"},
-            ),
+            # dbc.Row(
+            #     [
+            #         dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
+            #         dbc.Col(
+            #             dbc.RadioItems(
+            #                 id="write-radio-select-context",
+            #                 options=[
+            #                     {"label": '20', "value": 20},
+            #                     # {"label": '30', "value": 30},
+            #                 ],
+            #                 value=20,
+            #                 inline=True,
+            #             ),
+            #             width=True,
+            #         ),
+            #     ],
+            #     align="center",
+            #     style={"margin-bottom": "10px"},
+            # ),
 
             dbc.Row(
                 [
@@ -320,6 +320,7 @@ def render_page_content(pathname, logout_pathname):
                             options=[
                                 {"label": "200 words", "value": 200},
                                 {"label": "300 words", "value": 300},
+                                {"label": "400 words", "value": 400},
                                 {"label": "500 words", "value": 500},
                             ],
                             value=300,
