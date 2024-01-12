@@ -133,15 +133,6 @@ app.title = 'Speech Database'
 app.index_string = """<!DOCTYPE html>
 <html>
     <head>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-62289743-10"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'UA-62289743-10');
-        </script>
-
         {%metas%}
         <title>{%title%}</title>
         {%favicon%}
@@ -544,13 +535,13 @@ def render_page_content(pathname, logout_pathname):
         #  Input("write-input-box", "n_submit")
         ], 
         [State("write-input-box", "value"),
-         State('write-radio-select-context', 'value'),
+        #  State('write-radio-select-context', 'value'),
          State('write-radio-select-words', 'value'),
          State('write-slider-temperature', 'value')
          ]
 )
 # def write_speech(n_clicks, n_submit, topic, ncontext, nwords, temperature):
-def write_draft_speech(n_clicks, topic, ncontext, nwords, temperature):
+def write_draft_speech(n_clicks, topic, nwords, temperature):
 
     # Check if the search button was clicked
 
@@ -577,7 +568,7 @@ def write_draft_speech(n_clicks, topic, ncontext, nwords, temperature):
         #         ),  {'display': 'none'}
 
 
-
+        ncontext = 20
 
         audience = 'delegates to the WTO'
         model="gpt-4"
