@@ -560,58 +560,64 @@ def write_draft_speech(n_clicks, topic, ncontext, nwords, temperature):
         return "",  None
     else:
 
-        return html.Div(
-                    dbc.Container(
-                        [
-                            dbc.Row(
-                                [html.P('Draft (' + str(nwords) + ' words): ' + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
-                                justify="between",
-                                style={"margin-bottom": "5px"},
-                            ),
-                            # dbc.Row(
-                            #     [html.P(dcc.Markdown(draft))],
-                            #     justify="between",
-                            # ),
-                        ],
-                    )
-                ),  {'display': 'none'}
+        # return html.Div(
+        #             dbc.Container(
+        #                 [
+        #                     dbc.Row(
+        #                         [html.P('Draft (' + str(nwords) + ' words): ' + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
+        #                         justify="between",
+        #                         style={"margin-bottom": "5px"},
+        #                     ),
+        #                     # dbc.Row(
+        #                     #     [html.P(dcc.Markdown(draft))],
+        #                     #     justify="between",
+        #                     # ),
+        #                 ],
+        #             )
+        #         ),  {'display': 'none'}
 
 
 
 
-        # audience = 'delegates to the WTO'
-        # model="gpt-4"
-        # # topic = 'reglobalization'
-        # # topic = 'trade under most favoriate nation principle'
-        # # topic = 'ecommerce'
-        # # topic = 'trade in Africa'
-        # # topic = 'Trade and environment'
-        # # topic = "China and US trade war"
-        # # topic = topic
-        # # ncontext = 20
-        # context = generate_context(topic, ncontext)
+        audience = 'delegates to the WTO'
+        model="gpt-4"
+        # topic = 'reglobalization'
+        # topic = 'trade under most favoriate nation principle'
+        # topic = 'ecommerce'
+        # topic = 'trade in Africa'
+        # topic = 'Trade and environment'
+        # topic = "China and US trade war"
+        # topic = topic
+        # ncontext = 20
+        context = generate_context(topic, ncontext)
 
-        # # nwords = 300
-        # message = build_prompt_with_context(topic, context, nwords, audience)
 
-        # # temperature = 0
-        # draft = write_speech(message, temperature, model)
 
-    # return html.Div(
-    #             dbc.Container(
-    #                 [
-    #                     dbc.Row(
-    #                         [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
-    #                         justify="between",
-    #                         style={"margin-bottom": "5px"},
-    #                     ),
-    #                     dbc.Row(
-    #                         [html.P(dcc.Markdown(draft))],
-    #                         justify="between",
-    #                     ),
-    #                 ],
-    #             )
-    #         ),  {'display': 'none'}
+        # nwords = 300
+        message = build_prompt_with_context(topic, context, nwords, audience)
+        # print(message)
+        # message1 = ' '.join(message)
+
+        draft = 'empty draft'
+        # temperature = 0
+        draft = write_speech(message, temperature, model)
+
+        # print(str(len(context.split())),str(len(message1.split())),str(len(draft.split())))
+    return html.Div(
+                dbc.Container(
+                    [
+                        dbc.Row(
+                            [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
+                            justify="between",
+                            style={"margin-bottom": "5px"},
+                        ),
+                        dbc.Row(
+                            [html.P(dcc.Markdown(draft))],
+                            justify="between",
+                        ),
+                    ],
+                )
+            ),  {'display': 'none'}
 
 
 
