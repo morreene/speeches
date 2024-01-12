@@ -6,12 +6,12 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 # to delete dash_table
 from dash import html, dcc, dash_table
-import urllib.parse
+# import urllib.parse
 
 import pandas as pd
 import openai
 from openai.embeddings_utils import get_embedding, cosine_similarity
-import pinecone
+# import pinecone
 
 
 #################################################
@@ -30,39 +30,26 @@ openai.api_version = "2023-07-01-preview"
 #####     Load data 
 #################################################
 
+# load markdown file for About page
 with open('data/about.md', 'r') as markdown_file:
     markdown_about = markdown_file.read()
-
-# matrix = pd.read_pickle("data/tpr_matrix.pickle")
-# matrix.index.name = None
-
-# member_list = pd.read_pickle("data/all_mem.pickle")
-# member_list = member_list['Member'].tolist()
-# member_list = ['All Members'] + member_list
-
-# cat_list = pd.read_pickle("data/all_cat.pickle")
-# cat_list = cat_list['Topic'].tolist()
-# cat_list = ['All topics (slow loading)'] + cat_list
 
 # tags for topic keywords
 tags = {
     'Africa':               'Africa trade African Continental Free Trade Area (AfCFTA)',
-    'COVID-19':               'covid vaccine',
-    'Digital trade':          'digital trade ecommerce moratorium on electronic transmissions',
-    'E-commerce':            'ecommerce',
+    'COVID-19':             'covid vaccine',
+    'Digital trade':        'digital trade ecommerce moratorium on electronic transmissions',
+    'E-commerce':           'ecommerce',
     'Environment':          'environment climate polution environmental protection',
-    'Geopolitics':               'geopolitics US-China geopolitical',
-    'Global economy':               'global economy GDP growth trend',
-    'Intellectual property': 'intellectual property rights',
+    'Geopolitics':          'geopolitics US-China geopolitical',
+    'Global economy':       'global economy GDP growth trend',
+    'Intellectual property':'intellectual property rights',
     'MSME':                 'micro small and medium enterprises',
     'Subsidies':            'industrial subsidies grant',
 }
 
 speechdb = pd.read_parquet('data/speech-text-embedding.parquet')
 matrix = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
-
-
-
 
 #################################################
 ##### Speech app
@@ -138,7 +125,6 @@ Session(server)
 # dash app
 external_stylesheets = ['https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css']
 app = Dash(__name__, server=server, 
-        #    external_stylesheets=[dbc.themes.BOOTSTRAP], 
            external_stylesheets = external_stylesheets,
            suppress_callback_exceptions=True
            )
@@ -229,8 +215,6 @@ def toggle_active_links(pathname):
         return True, False, False, False, False
     return [pathname == f"/page-{i}" for i in range(1, 6)]
 
-
-
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     dcc.Location(id='logout-url', refresh=False),  # Added logout URL component
@@ -276,7 +260,7 @@ app.layout = html.Div([
 
 @app.callback(
     [Output('login-facet', 'style'),
-    Output('page-layout', 'style')],
+     Output('page-layout', 'style')],
     [Input('login-button', 'n_clicks')],
     [State('username', 'value'), State('password', 'value')]
 )
@@ -298,44 +282,16 @@ def render_page_content(pathname, logout_pathname):
         session.pop('authed', None)
         session.clear()
         return dcc.Location(pathname="/login", id="redirect-to-login"), "/logout"
-    # elif pathname == "/":
-    #     # return html.P("This is the content of the home page!"), pathname
-    #     # return dcc.Location(pathname="/page-1", id="redirect-to-login"), "/page-1"  
-    #     return dcc.Location(pathname="/page-1", id="redirect-to-login"), "/page-1"      
-    # elif pathname == "/login":
-    #     # return html.P("This is the content of page after login"), pathname
-    #     return dcc.Location(pathname="/page-1", id="redirect-to-login"), "/page-1"
-    # elif pathname == "/page-1":
+
     elif pathname in ["/","/login", "/page-1"]:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         return dbc.Container([
             html.H6("Write based on the previous speeches", className="display-about"),
-            html.Br(),
             html.Br(),
             dbc.Row([
                 dbc.Col(
                         dbc.InputGroup([
-                                dbc.Input(id="search-box2", type="text", placeholder="Topics: e.g. globalization and reglobalization"),
-                                dbc.Button(" Write about ...", id="search-button2", n_clicks=0),
+                                dbc.Input(id="write-input-box", type="text", placeholder="Topics: e.g. globalization and reglobalization"),
+                                dbc.Button(" Write about ...", id="write-submit-button", n_clicks=0),
                             ]
                         ), width=12,
                     ),
@@ -347,10 +303,10 @@ def render_page_content(pathname, logout_pathname):
                     dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
                     dbc.Col(
                         dbc.RadioItems(
-                            id="radio-select-top2",
+                            id="write-radio-select-context",
                             options=[
                                 {"label": '20', "value": 20},
-                                {"label": '30', "value": 30},
+                                # {"label": '30', "value": 30},
                             ],
                             value=20,
                             inline=True,
@@ -367,7 +323,7 @@ def render_page_content(pathname, logout_pathname):
                     dbc.Col(html.Label("Length of the draft:"), width="auto",  style={'margin-top':5,'margin-left':10}),
                     dbc.Col(
                         dbc.RadioItems(
-                            id="radio-select-words",
+                            id="write-radio-select-words",
                             options=[
                                 {"label": "200 words", "value": 200},
                                 {"label": "300 words", "value": 300},
@@ -389,7 +345,7 @@ def render_page_content(pathname, logout_pathname):
                     dbc.Col(
                         dcc.Slider(0, 1, 0.1,
                                 value=0.5,
-                                id='slider-temperature',
+                                id='write-slider-temperature',
                         ),style={"margin-top": "20px"},
                     ),
                 ],
@@ -415,13 +371,13 @@ def render_page_content(pathname, logout_pathname):
                                 - Digital trade '''
                         ),
                 ], width=12),
-            ], justify="center", className="header", id='sample-queries2'),
+            ], justify="center", className="header", id='write-sample-topics'),
             html.Br(),
             html.Br(),
             dbc.Row([ 
                 # html.Div(id="search-results", className="results"),
                 dbc.Col([
-                        dcc.Loading(id="loading2", type="default", children=html.Div(id="search-results2"), fullscreen=False),
+                        dcc.Loading(id="loading2", type="default", children=html.Div(id="write-results"), fullscreen=False),
                     ], width=12),
             ], justify="center"),
         ]), pathname
@@ -675,16 +631,16 @@ def search(n_clicks, n_submit, search_terms, top):
 
 # call back for returning results
 @app.callback(
-        [Output("search-results2", "children"),  
-         Output("sample-queries2", "style")
+        [Output("write-results", "children"),  
+         Output("write-sample-topics", "style")
         ],
-        [Input("search-button2", "n_clicks"),
-        #  Input("search-box2", "n_submit")
+        [Input("write-submit-button", "n_clicks"),
+        #  Input("write-input-box", "n_submit")
         ], 
-        [State("search-box2", "value"),
-         State('radio-select-top2', 'value'),
-         State('radio-select-words', 'value'),
-         State('slider-temperature', 'value')
+        [State("write-input-box", "value"),
+         State('write-radio-select-context', 'value'),
+         State('write-radio-select-words', 'value'),
+         State('write-slider-temperature', 'value')
          ]
 )
 # def write_speech(n_clicks, n_submit, topic, ncontext, nwords, temperature):
@@ -694,7 +650,7 @@ def write_draft_speech(n_clicks, topic, ncontext, nwords, temperature):
 
     # if (n_clicks <=0 and n_submit is None) or search_terms=='' or search_terms is None:
     # if (n_clicks <=0 and n_submit is None) or topic=='' or topic is None:
-    if (n_clicks is None) or topic=='' or topic is None:
+    if n_clicks  <=0  or n_clicks is None or topic=='' or topic is None:
         return "",  None
     else:
         
@@ -717,24 +673,23 @@ def write_draft_speech(n_clicks, topic, ncontext, nwords, temperature):
         draft = write_speech(message, temperature, model)
 
     return html.Div(
-    dbc.Container(
-        [
-            dbc.Row(
-                [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
-                justify="between",
-                style={"margin-bottom": "5px"},
-            ),
-            dbc.Row(
-                [html.P(dcc.Markdown(draft))],
-                justify="between",
-            ),
-        ],
-    )
-),  {'display': 'none'}
-
+                dbc.Container(
+                    [
+                        dbc.Row(
+                            [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
+                            justify="between",
+                            style={"margin-bottom": "5px"},
+                        ),
+                        dbc.Row(
+                            [html.P(dcc.Markdown(draft))],
+                            justify="between",
+                        ),
+                    ],
+                )
+            ),  {'display': 'none'}
 
 #################################################
-#####     Page tags
+#####     Browse by Topic
 #################################################
 
 @app.callback(
@@ -826,28 +781,6 @@ def update_table(*args):
 #################################################
 # end of function page
 #################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
