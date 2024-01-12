@@ -49,7 +49,9 @@ tags = {
 }
 
 speechdb = pd.read_parquet('data/speech-text-embedding.parquet')
+contextdb = speechdb[speechdb['n_tokens']>50].copy()
 matrix = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
+
 
 #################################################
 ##### Speech app
@@ -70,8 +72,8 @@ def search_speech_db(df, user_query, ncontext=20):
     return res
 
 def generate_context(topic, ncontext=20):
-    res = search_speech_db(speechdb, topic, ncontext=ncontext)
-    return res['Text'].to_list()
+    res = search_speech_db(contextdb, topic, ncontext=ncontext)
+    return res['Text'].to_list(), res['similarities'].min(), res['similarities'].max()
 
 def build_prompt_with_context(topic, context=[], nwords=300, audience='government officials'):
     return [{'role': 'system', 
@@ -355,15 +357,14 @@ def render_page_content(pathname, logout_pathname):
                                 - Globalization and re-globalization
                                 - WTO and multilateral trading system
                                 - US and China trade war
-                                - Trade finance
-                                - Aid for trade 
-                                - Least developed country members
-                                - Africa and global trade
+                                - Industrial policy
+                                - Subsidies
+                                - Least developed country and trade
+                                - Africa and trade
                                 - Digital trade '''
                         ),
                 ], width=12),
             ], justify="center", className="header", id='write-sample-topics'),
-            html.Br(),
             html.Br(),
             dbc.Row([ 
                 # html.Div(id="search-results", className="results"),
@@ -580,9 +581,9 @@ def write_draft_speech(n_clicks, topic, nwords, temperature):
         # topic = "China and US trade war"
         # topic = topic
         # ncontext = 20
-        context = generate_context(topic, ncontext)
+        context, c_min, c_max = generate_context(topic, ncontext)
 
-
+        context1 = ' '.join(context)
 
         # nwords = 300
         message = build_prompt_with_context(topic, context, nwords, audience)
@@ -593,12 +594,12 @@ def write_draft_speech(n_clicks, topic, nwords, temperature):
         # temperature = 0
         draft = write_speech(message, temperature, model)
 
-        # print(str(len(context.split())),str(len(message1.split())),str(len(draft.split())))
+        print(str(len(context1.split())), str(len(draft.split())))
     return html.Div(
                 dbc.Container(
                     [
                         dbc.Row(
-                            [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
+                            [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and temperature = ' + str(temperature) + ' context_min =' + str(c_min) )],
                             justify="between",
                             style={"margin-bottom": "5px"},
                         ),
