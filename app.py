@@ -116,7 +116,7 @@ def write_speech(message, temperature=0, model="gpt-35-turbo"):
         engine=model,
         messages=message,
         temperature=temperature,
-        max_tokens=4000,
+        max_tokens=1000,
     )
     # Strip any punctuation or whitespace from the response
     return response.choices[0].message.content.strip('., ')
@@ -199,8 +199,8 @@ sidebar = html.Div([
                     # use the Collapse component to animate hiding / revealing links
                     dbc.Collapse(
                         dbc.Nav([
-                                dbc.NavLink("Write", href="/page-2", id="page-2-link"),
-                                dbc.NavLink("Search ", href="/page-1", id="page-1-link"),
+                                dbc.NavLink("Write ", href="/page-1", id="page-1-link"),
+                                dbc.NavLink("Search", href="/page-2", id="page-2-link"),
                                 dbc.NavLink("Browse by topics", href="/page-3", id="page-3-link"),
                                 dbc.NavLink("Speech List", href="/page-4", id="page-4-link"),
                                 dbc.NavLink("About", href="/page-5", id="page-5-link"),
@@ -306,6 +306,147 @@ def render_page_content(pathname, logout_pathname):
     #     return dcc.Location(pathname="/page-1", id="redirect-to-login"), "/page-1"
     # elif pathname == "/page-1":
     elif pathname in ["/","/login", "/page-1"]:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        return dbc.Container([
+            html.H6("Write based on the previous speeches", className="display-about"),
+            html.Br(),
+            html.Br(),
+            dbc.Row([
+                dbc.Col(
+                        dbc.InputGroup([
+                                dbc.Input(id="search-box2", type="text", placeholder="Topics: e.g. globalization and reglobalization"),
+                                dbc.Button(" Write about ...", id="search-button2", n_clicks=0),
+                            ]
+                        ), width=12,
+                    ),
+                ], justify="center", className="header", id='search-container2'
+            ),
+            html.Br(),
+            dbc.Row(
+                [
+                    dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
+                    dbc.Col(
+                        dbc.RadioItems(
+                            id="radio-select-top2",
+                            options=[
+                                {"label": '20', "value": 20},
+                                {"label": '30', "value": 30},
+                            ],
+                            value=20,
+                            inline=True,
+                        ),
+                        width=True,
+                    ),
+                ],
+                align="center",
+                style={"margin-bottom": "10px"},
+            ),
+
+            dbc.Row(
+                [
+                    dbc.Col(html.Label("Length of the draft:"), width="auto",  style={'margin-top':5,'margin-left':10}),
+                    dbc.Col(
+                        dbc.RadioItems(
+                            id="radio-select-words",
+                            options=[
+                                {"label": "200 words", "value": 200},
+                                {"label": "300 words", "value": 300},
+                                {"label": "500 words", "value": 500},
+                            ],
+                            value=300,
+                            inline=True,
+                        ),
+                        width=True,
+                    ),
+                ],
+                align="center",
+                style={"margin-bottom": "10px"},
+            ),
+
+            dbc.Row(
+                [
+                    dbc.Col(html.P("Degree of randomness (temperature): Increase for more creativity"), width="auto",  style={'margin-top':5,'margin-left':10}),
+                    dbc.Col(
+                        dcc.Slider(0, 1, 0.1,
+                                value=0.5,
+                                id='slider-temperature',
+                        ),style={"margin-top": "20px"},
+                    ),
+                ],
+                align="center",
+                style={"margin-bottom": "1px"},
+            ),
+
+
+            html.Hr(),
+            # html.Br(),
+            dbc.Row([
+                dbc.Col([
+                    dcc.Markdown('''
+                                Sample topics:
+                                - Trade and environment
+                                - Globalization and re-globalization
+                                - WTO and multilateral trading system
+                                - US and China trade war
+                                - Trade finance
+                                - Aid for trade 
+                                - Least developed country members
+                                - Africa and global trade
+                                - Digital trade '''
+                        ),
+                ], width=12),
+            ], justify="center", className="header", id='sample-queries2'),
+            html.Br(),
+            html.Br(),
+            dbc.Row([ 
+                # html.Div(id="search-results", className="results"),
+                dbc.Col([
+                        dcc.Loading(id="loading2", type="default", children=html.Div(id="search-results2"), fullscreen=False),
+                    ], width=12),
+            ], justify="center"),
+        ]), pathname
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    elif pathname == "/page-2":
+    
         return dbc.Container([
             html.H6("Search SpeechDB with embeddings", className="display-about"),
             html.Br(),
@@ -375,105 +516,10 @@ def render_page_content(pathname, logout_pathname):
             ], justify="center"),
         ]), pathname
 
-    elif pathname == "/page-2":
-        return dbc.Container([
-            html.H6("Write based on the previous speeches", className="display-about"),
-            html.Br(),
-            html.Br(),
-            dbc.Row([
-                dbc.Col(
-                        dbc.InputGroup([
-                                dbc.Input(id="search-box2", type="text", placeholder="Topics: e.g. globalization and reglobalization"),
-                                dbc.Button(" Write about ...", id="search-button2", n_clicks=0),
-                            ]
-                        ), width=12,
-                    ),
-                ], justify="center", className="header", id='search-container2'
-            ),
-            html.Br(),
-            dbc.Row(
-                [
-                    dbc.Col(html.Label('Number of "contexts": '), width="auto", style={'margin-top':5,'margin-left':10}),
-                    dbc.Col(
-                        dbc.RadioItems(
-                            id="radio-select-top2",
-                            options=[
-                                {"label": '20', "value": 20},
-                                {"label": '30', "value": 30},
-                            ],
-                            value=20,
-                            inline=True,
-                        ),
-                        width=True,
-                    ),
-                ],
-                align="center",
-                style={"margin-bottom": "10px"},
-            ),
-
-            dbc.Row(
-                [
-                    dbc.Col(html.Label("Length:"), width="auto",  style={'margin-top':5,'margin-left':10}),
-                    dbc.Col(
-                        dbc.RadioItems(
-                            id="radio-select-words",
-                            options=[
-                                {"label": "200 words", "value": 200},
-                                {"label": "300 words", "value": 300},
-                                {"label": "500 words", "value": 500},
-                            ],
-                            value=300,
-                            inline=True,
-                        ),
-                        width=True,
-                    ),
-                ],
-                align="center",
-                style={"margin-bottom": "10px"},
-            ),
-
-            dbc.Row(
-                [
-                    dbc.Col(html.Label("Temperature:"), width="auto",  style={'margin-top':5,'margin-left':10}),
-                    dbc.Col(
-                        dcc.Slider(0, 1, 0.1,
-                                value=0.5,
-                                id='slider-temperature',
-                        ),style={"margin-top": "20px"},
-                    ),
-                ],
-                align="center",
-                style={"margin-bottom": "1px"},
-            ),
 
 
-            html.Hr(),
-            # html.Br(),
-            dbc.Row([
-                dbc.Col([
-                    dcc.Markdown('''
-                                Sample topics:
-                                - Trade and environment
-                                - Globalization and re-globalization
-                                - WTO and multilateral trading system
-                                - US and China trade war
-                                - Trade finance
-                                - Aid for trade 
-                                - Least developed country members
-                                - Africa and global trade
-                                - Digital trade '''
-                        ),
-                ], width=12),
-            ], justify="center", className="header", id='sample-queries2'),
-            html.Br(),
-            html.Br(),
-            dbc.Row([ 
-                # html.Div(id="search-results", className="results"),
-                dbc.Col([
-                        dcc.Loading(id="loading2", type="default", children=html.Div(id="search-results2"), fullscreen=False),
-                    ], width=12),
-            ], justify="center"),
-        ]), pathname
+    
+    
     elif pathname == "/page-3":
         return dbc.Container([
             html.H6("Browse reports by topics", className="display-about"),

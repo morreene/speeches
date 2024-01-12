@@ -1,6 +1,15 @@
 
 **Please note that this app is intended for testing purposes only.**
 
+
+### Text Generation with Retrieval Augmented Generation (RAG)
+
+Retrieval Augmented Generation (RAG) is an innovative approach in natural language processing (NLP) and artificial intelligence (AI) that combines the strengths of retrieval-based and generative models to enhance text generation. In this method, a retrieval-based model first identifies and retrieves relevant information from a large dataset, based on the given input, such as a question or prompt. This model is adept at sourcing existing, pertinent content but does not generate new text. The retrieved information is then supplied to a generative model like GPT (Generative Pre-trained Transformer), known for its ability to create new, contextually relevant content. By utilizing the retrieved data alongside the initial input, the generative model crafts responses that are not only contextually appropriate but also rich in factual details and specificity. This synergy allows RAG to produce outputs that are both informative and nuanced, making it highly valuable in applications where precise, detailed, and context-aware responses are essential, such as advanced chatbots, question-answering systems, and other AI applications. RAG represents a significant leap in AI's capability to generate responses that are closer to human-like accuracy and relevance, enhancing the quality and reliability of AI-driven interactions.
+
+
+
+
+
 ### Semantic Search using Text Embeddings
 
 
@@ -33,5 +42,5 @@ You can use English, French, Spanish, Arabic, German and other languages.
                             |                                          |
 
 ## Change log
-* V0.8 (20230626): 3 modules - semantic search, q&a, topics - for testing 
-* V0.9 (20230929): add gtp-4 in q&a 
+* V0.2 (20240111): Rearrange menu; refined perameter selection; new prompt text; 
+* V0.1 (20231220): Initial version
