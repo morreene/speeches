@@ -296,6 +296,7 @@ def update_output(n_clicks, username, password):
 def render_page_content(pathname, logout_pathname):
     if logout_pathname == "/logout":  # Handle logout
         session.pop('authed', None)
+        session.clear()
         return dcc.Location(pathname="/login", id="redirect-to-login"), "/logout"
     # elif pathname == "/":
     #     # return html.P("This is the content of the home page!"), pathname
@@ -596,7 +597,7 @@ def search(n_clicks, n_submit, search_terms, top):
         # Display the results in a datatable
         return html.Div(style={'width': '100%'},
                         children=[
-                            # html.P('Find ' + str(len(matches)) +" paragraphs, with score ranging from " + str(df['score'].min()) + ' to ' + str(df['score'].max())),
+                            # html.P('topic: ' + str(len(matches)) +" paragraphs, with score ranging from " + str(df['score'].min()) + ' to ' + str(df['score'].max())),
                             # html.A('Download CSV', id='download-link', download="rawdata.csv", href=csv_string, target="_blank",),
                             html.Br(),
                             dbc.Row(
@@ -686,7 +687,7 @@ def search(n_clicks, n_submit, search_terms, top):
          State('slider-temperature', 'value')
         ]
         )
-def chat(n_clicks, n_submit, topic, ncontext, nwords, temperature):
+def write(n_clicks, n_submit, topic, ncontext, nwords, temperature):
     # Check if the search button was clicked
     # if (n_clicks <=0 and n_submit is None) or search_terms=='' or search_terms is None:
     if (n_clicks <=0 and n_submit is None) or topic=='' or topic is None:
@@ -715,7 +716,7 @@ def chat(n_clicks, n_submit, topic, ncontext, nwords, temperature):
     dbc.Container(
         [
             dbc.Row(
-                [html.P('Draft (' + str(len(draft.split()))  +" words): ")],
+                [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
                 justify="between",
                 style={"margin-bottom": "5px"},
             ),
