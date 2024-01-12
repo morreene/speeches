@@ -103,7 +103,7 @@ def write_speech(message, temperature=0, model="gpt-4"):
         engine=model,
         messages=message,
         temperature=temperature,
-        max_tokens=1000,
+        max_tokens=2000,
     )
     # Strip any punctuation or whitespace from the response
     return response.choices[0].message.content.strip('., ')
