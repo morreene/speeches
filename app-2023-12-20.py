@@ -187,16 +187,16 @@ def retrieve(query):
 with open('data/about.md', 'r') as markdown_file:
     markdown_about = markdown_file.read()
 
-matrix = pd.read_pickle("data/tpr_matrix.pickle")
-matrix.index.name = None
+# matrix = pd.read_pickle("data/tpr_matrix.pickle")
+# matrix.index.name = None
 
-member_list = pd.read_pickle("data/all_mem.pickle")
-member_list = member_list['Member'].tolist()
-member_list = ['All Members'] + member_list
+# member_list = pd.read_pickle("data/all_mem.pickle")
+# member_list = member_list['Member'].tolist()
+# member_list = ['All Members'] + member_list
 
-cat_list = pd.read_pickle("data/all_cat.pickle")
-cat_list = cat_list['Topic'].tolist()
-cat_list = ['All topics (slow loading)'] + cat_list
+# cat_list = pd.read_pickle("data/all_cat.pickle")
+# cat_list = cat_list['Topic'].tolist()
+# cat_list = ['All topics (slow loading)'] + cat_list
 
 # tags for topic keywords
 tags = {

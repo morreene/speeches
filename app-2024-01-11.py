@@ -114,7 +114,7 @@ def write_speech(message, temperature=0, model="gpt-4"):
 #################################################
 
 # Hardcoded users (for demo purposes)
-USERS = {"admin": "admin", "ersd1": "ersd1", "w": "w"}
+USERS = {"admin": "admin", "ersd": "ersd", "w": "w"}
 
 server = Flask(__name__)
 server.config['SECRET_KEY'] = 'supersecretkey'
@@ -523,139 +523,6 @@ def render_page_content(pathname, logout_pathname):
 
 
 
-
-
-
-
-
-
-
-
-#################################################
-#####     Page Write
-#################################################
-
-# call back for returning results
-@app.callback(
-        [Output("write-results", "children"),  
-         Output("write-sample-topics", "style")
-        ],
-        [Input("write-submit-button", "n_clicks"),
-        #  Input("write-input-box", "n_submit")
-        ], 
-        [State("write-input-box", "value"),
-         State('write-radio-select-context', 'value'),
-         State('write-radio-select-words', 'value'),
-         State('write-slider-temperature', 'value')
-         ]
-)
-# def write_speech(n_clicks, n_submit, topic, ncontext, nwords, temperature):
-def write_draft_speech(n_clicks, topic, ncontext, nwords, temperature):
-
-    # Check if the search button was clicked
-
-    # if (n_clicks <=0 and n_submit is None) or search_terms=='' or search_terms is None:
-    # if (n_clicks <=0 and n_submit is None) or topic=='' or topic is None:
-    if n_clicks  <=0  or n_clicks is None or topic=='' or topic is None:
-        return "",  None
-    else:
-
-        return html.Div(
-                    dbc.Container(
-                        [
-                            dbc.Row(
-                                [html.P('Draft (' + str(nwords) + ' words): ' + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
-                                justify="between",
-                                style={"margin-bottom": "5px"},
-                            ),
-                            # dbc.Row(
-                            #     [html.P(dcc.Markdown(draft))],
-                            #     justify="between",
-                            # ),
-                        ],
-                    )
-                ),  {'display': 'none'}
-
-
-
-
-        # audience = 'delegates to the WTO'
-        # model="gpt-4"
-        # # topic = 'reglobalization'
-        # # topic = 'trade under most favoriate nation principle'
-        # # topic = 'ecommerce'
-        # # topic = 'trade in Africa'
-        # # topic = 'Trade and environment'
-        # # topic = "China and US trade war"
-        # # topic = topic
-        # # ncontext = 20
-        # context = generate_context(topic, ncontext)
-
-        # # nwords = 300
-        # message = build_prompt_with_context(topic, context, nwords, audience)
-
-        # # temperature = 0
-        # draft = write_speech(message, temperature, model)
-
-    # return html.Div(
-    #             dbc.Container(
-    #                 [
-    #                     dbc.Row(
-    #                         [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
-    #                         justify="between",
-    #                         style={"margin-bottom": "5px"},
-    #                     ),
-    #                     dbc.Row(
-    #                         [html.P(dcc.Markdown(draft))],
-    #                         justify="between",
-    #                     ),
-    #                 ],
-    #             )
-    #         ),  {'display': 'none'}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #################################################
 #####    Page Search
 #################################################
@@ -757,6 +624,69 @@ def search(n_clicks, n_submit, search_terms, top):
                                 )
                             ]
                 ),  {'display': 'none'}
+
+#################################################
+#####     Page Chat
+#################################################
+
+# call back for returning results
+@app.callback(
+        [Output("write-results", "children"),  
+         Output("write-sample-topics", "style")
+        ],
+        [Input("write-submit-button", "n_clicks"),
+        #  Input("write-input-box", "n_submit")
+        ], 
+        [State("write-input-box", "value"),
+         State('write-radio-select-context', 'value'),
+         State('write-radio-select-words', 'value'),
+         State('write-slider-temperature', 'value')
+         ]
+)
+# def write_speech(n_clicks, n_submit, topic, ncontext, nwords, temperature):
+def write_draft_speech(n_clicks, topic, ncontext, nwords, temperature):
+
+    # Check if the search button was clicked
+
+    # if (n_clicks <=0 and n_submit is None) or search_terms=='' or search_terms is None:
+    # if (n_clicks <=0 and n_submit is None) or topic=='' or topic is None:
+    if n_clicks  <=0  or n_clicks is None or topic=='' or topic is None:
+        return "",  None
+    else:
+        
+        audience = 'delegates to the WTO'
+        model="gpt-4"
+        # topic = 'reglobalization'
+        # topic = 'trade under most favoriate nation principle'
+        # topic = 'ecommerce'
+        # topic = 'trade in Africa'
+        # topic = 'Trade and environment'
+        # topic = "China and US trade war"
+        # topic = topic
+        # ncontext = 20
+        context = generate_context(topic, ncontext)
+
+        # nwords = 300
+        message = build_prompt_with_context(topic, context, nwords, audience)
+
+        # temperature = 0
+        draft = write_speech(message, temperature, model)
+
+    return html.Div(
+                dbc.Container(
+                    [
+                        dbc.Row(
+                            [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
+                            justify="between",
+                            style={"margin-bottom": "5px"},
+                        ),
+                        dbc.Row(
+                            [html.P(dcc.Markdown(draft))],
+                            justify="between",
+                        ),
+                    ],
+                )
+            ),  {'display': 'none'}
 
 #################################################
 #####     Browse by Topic

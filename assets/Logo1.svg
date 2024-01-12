@@ -27,7 +27,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="210"
+     inkscape:cx="160.35714"
      inkscape:cy="227.5"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -61,7 +61,7 @@
      id="layer1">
     <text
        xml:space="preserve"
-       style="font-size:14.1111px;line-height:0.9;font-family:'Permanent Marker';-inkscape-font-specification:'Permanent Marker, Normal';letter-spacing:0px;stroke-width:0.319923"
+       style="font-size:14.1111px;line-height:0.7;font-family:'Permanent Marker';-inkscape-font-specification:'Permanent Marker, Normal';letter-spacing:0px;stroke-width:0.319923"
        x="2.1210902"
        y="17.33989"
        id="text835"
@@ -69,20 +69,15 @@
        inkscape:export-ydpi="217.91263"
        transform="scale(0.95668696,1.045274)"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.7px;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Bold';letter-spacing:0.0529167px;fill:#008080;fill-opacity:1;stroke-width:0.319923"
+         sodipodi:role="line"
+         id="tspan1699"
          x="2.1210902"
-         y="17.33989"
-         id="tspan272"
-         sodipodi:role="line">Speeches</tspan><tspan
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87778px;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;letter-spacing:0.105833px;fill:#000000;stroke-width:0.319923"
+         y="17.33989">Speeches</tspan><tspan
+         style="font-style:italic;font-variant:normal;font-weight:300;font-stretch:normal;font-size:6.35px;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Light Italic';letter-spacing:-0.0264583px;fill:#000000;stroke-width:0.319923"
+         sodipodi:role="line"
+         id="tspan1703"
          x="2.1210902"
-         y="30.039879"
-         id="tspan274"
-         sodipodi:role="line">Data &amp; Tools</tspan><tspan
-         x="2.1210902"
-         y="42.739868"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.87778px;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;stroke-width:0.319923"
-         id="tspan837"
-         sodipodi:role="line" /></text>
+         y="27.217659">Write with Data &amp; AI</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:7.1874px;line-height:1.95;font-family:'Permanent Marker';-inkscape-font-specification:'Permanent Marker, Normal';stroke-width:0.283713"
@@ -95,16 +90,5 @@
          y="48.677059"
          style="font-style:italic;font-variant:normal;font-weight:300;font-stretch:normal;font-size:6.35px;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Light Italic';fill:#008080;stroke-width:0.283713"
          sodipodi:role="line" /></text>
-    <text
-       xml:space="preserve"
-       style="font-style:italic;font-size:4.58611px;line-height:1.1;font-family:Ubuntu;-inkscape-font-specification:'Ubuntu Italic';letter-spacing:-0.264583px;fill:#008080;stroke-width:0.264583"
-       x="2.7214286"
-       y="39.007145"
-       id="text583"><tspan
-         sodipodi:role="line"
-         style="font-size:4.58611px;fill:#000000;stroke-width:0.264583"
-         x="2.7214286"
-         y="39.007145"
-         id="tspan585">AI-powered tools and analytics</tspan></text>
   </g>
 </svg>
