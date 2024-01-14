@@ -13,7 +13,6 @@ import openai
 from openai.embeddings_utils import get_embedding, cosine_similarity
 # import pinecone
 
-
 #################################################
 #####     configurations
 #################################################
@@ -36,22 +35,22 @@ with open('data/about.md', 'r') as markdown_file:
 
 # tags for topic keywords
 tags = {
-    'Africa':               'Africa trade African Continental Free Trade Area (AfCFTA)',
-    'COVID-19':             'covid vaccine',
-    'Digital trade':        'digital trade ecommerce moratorium on electronic transmissions',
+    'Africa':               'Africa trade, African Continental Free Trade Area (AfCFTA)',
+    'COVID-19':             'covid, vaccine, diagnostics, therapeutics',
+    'Digital trade':        'digital trade, ecommerce, moratorium on electronic transmissions',
     'E-commerce':           'ecommerce',
-    'Environment':          'environment climate polution environmental protection',
-    'Geopolitics':          'geopolitics US-China geopolitical',
-    'Global economy':       'global economy GDP growth trend',
-    'Intellectual property':'intellectual property rights',
+    'Environment':          'environment, climate change, polution, environmental protection, biodiversity',
+    'Geopolitics':          'geopolitics, US-China, trade war, frictions, geopolitical',
+    'Global economy':       'global economy, GDP growth, trend, outlook, forecast',
+    'Intellectual property':'intellectual property rights, copyright',
     'MSME':                 'micro small and medium enterprises',
     'Subsidies':            'industrial subsidies grant',
 }
 
 speechdb = pd.read_parquet('data/speech-text-embedding.parquet')
 contextdb = speechdb[speechdb['n_tokens']>50].copy()
-matrix = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
-
+speechlist = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
+speechlist.columns = ['Folder','File Name','Number of paragraphs']
 
 #################################################
 ##### Speech app
@@ -116,7 +115,7 @@ def write_speech(message, temperature=0, model="gpt-4"):
 #################################################
 
 # Hardcoded users (for demo purposes)
-USERS = {"admin": "admin", "ersd1": "ersd1", "w": "w"}
+USERS = {"admin": "admin", "ersd": "ersd", "w": "w"}
 
 server = Flask(__name__)
 server.config['SECRET_KEY'] = 'supersecretkey'
@@ -283,7 +282,7 @@ def render_page_content(pathname, logout_pathname):
             dbc.Row([
                 dbc.Col(
                         dbc.InputGroup([
-                                dbc.Input(id="write-input-box", type="text", placeholder="Topics: e.g. globalization and reglobalization"),
+                                dbc.Input(id="write-input-box", type="text", placeholder="Enter a topic: e.g. globalization OR digital trade"),
                                 dbc.Button(" Write about ...", id="write-submit-button", n_clicks=0),
                             ]
                         ), width=12,
@@ -349,7 +348,6 @@ def render_page_content(pathname, logout_pathname):
 
 
             html.Hr(),
-            # html.Br(),
             dbc.Row([
                 dbc.Col([
                     dcc.Markdown('''
@@ -374,29 +372,8 @@ def render_page_content(pathname, logout_pathname):
                     ], width=12),
             ], justify="center"),
         ]), pathname
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     elif pathname == "/page-2":
-    
         return dbc.Container([
             html.H6("Search SpeechDB with embeddings", className="display-about"),
             html.Br(),
@@ -404,7 +381,7 @@ def render_page_content(pathname, logout_pathname):
             dbc.Row([
                 dbc.Col(
                         dbc.InputGroup([
-                                dbc.Input(id="search-box", type="text", placeholder="Enter search query, e.g. subsidies and government support to fossil feul and energy", ),
+                                dbc.Input(id="search-box", type="text", placeholder="Enter search query, e.g. subsidies, climate change"),
                                 dbc.Button(" Search ", id="search-button", n_clicks=0,
                                                 #    className="btn btn-primary mt-3", 
                                             ),
@@ -465,10 +442,6 @@ def render_page_content(pathname, logout_pathname):
                     ], width=12),
             ], justify="center"),
         ]), pathname
-
-
-
-    
     
     elif pathname == "/page-3":
         return dbc.Container([
@@ -490,14 +463,32 @@ def render_page_content(pathname, logout_pathname):
                 html.P(''),
                 dash_table.DataTable(
                     id='table',
-                    columns=[{"name": i, "id": i} for i in matrix.columns],
-                    data=matrix.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in speechlist.columns],
+                    data=speechlist.to_dict('records'),
                     style_cell_conditional=[
-                        {'if': {'column_id': 'Member'},
-                         'width': '100px'},
-                    ]
+                            {
+                                'if': {'column_id': c},
+                                'textAlign': 'left'
+                            } for c in ['Date', 'Region']
+                        ],
+                    style_data={
+                        'color': 'black',
+                        'backgroundColor': 'white'
+                    },
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 'odd'},
+                            'backgroundColor': 'rgb(240, 240, 240)',
+                        }
+                    ],
+                    style_header={
+                        'backgroundColor': 'rgb(210, 210, 210)',
+                        'color': 'black',
+                        'fontWeight': 'bold'
+                    }
                 )
             ]), pathname
+
     elif pathname == "/page-5":
         return html.Div([
                             html.H4("About the tools and the Speech Database", className="display-about"),
@@ -511,6 +502,7 @@ def render_page_content(pathname, logout_pathname):
                                             # "verticalAlign": "top"
                                         }),
                 ]), pathname
+
     else:
         return html.P("404: Not found"), pathname
 
