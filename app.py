@@ -99,7 +99,7 @@ def build_prompt_with_context(topic, context=[], nwords=300, audience='governmen
                         Speech:
             """}]
 
-def write_speech(message, temperature=0, model="gpt-4"):
+def write_speech(message, temperature=0, model="gpt-35-turbo-16k"):
     response = openai.ChatCompletion.create(
         engine=model,
         messages=message,
@@ -280,14 +280,30 @@ def render_page_content(pathname, logout_pathname):
             html.H6("Write based on the previous speeches", className="display-about"),
             html.Br(),
             dbc.Row([
-                dbc.Col(
-                        dbc.InputGroup([
-                                dbc.Input(id="write-input-box", type="text", placeholder="Enter a topic: e.g. globalization OR digital trade"),
+                # dbc.Col(
+                #         dbc.InputGroup([
+                #                 # dbc.Input(id="write-input-box", type="text", placeholder="Enter a topic: e.g. globalization OR digital trade"),
+                #                 dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalization OR digital trade"),
+                #                 # dbc.Button(" Write about ...", id="write-submit-button", n_clicks=0),
+                #             ]
+                #         ), width=12,
+                        
+                #     ),
+
+dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalization OR digital trade"),
+
+                    html.Div(
+                                # dbc.Button('Submit', id='submit-button', n_clicks=0, className="me-1"),
                                 dbc.Button(" Write about ...", id="write-submit-button", n_clicks=0),
-                            ]
-                        ), width=12,
-                    ),
-                ], justify="center", className="header", id='search-container2'
+                                style={'textAlign': 'right'}
+                            )
+
+                    
+                ], justify="center", className="header", id='search-container2',
+
+
+
+
             ),
             html.Br(),
             # dbc.Row(
@@ -309,6 +325,26 @@ def render_page_content(pathname, logout_pathname):
             #     align="center",
             #     style={"margin-bottom": "10px"},
             # ),
+
+            dbc.Row(
+                [
+                    dbc.Col(html.Label('Model: '), width="auto", style={'margin-top':5,'margin-left':10}),
+                    dbc.Col(
+                        dbc.RadioItems(
+                            id="write-radio-select-model",
+                            options=[
+                                {"label": 'ChatGPT 3.5 16k', "value": 'gpt-35-turbo-16k'},
+                                {"label": 'ChatGPT 4', "value": 'gpt-4'},
+                            ],
+                            value='gpt-35-turbo-16k',
+                            inline=True,
+                        ),
+                        width=True,
+                    ),
+                ],
+                align="center",
+                style={"margin-bottom": "10px"},
+            ),
 
             dbc.Row(
                 [
@@ -530,12 +566,13 @@ def render_page_content(pathname, logout_pathname):
         ], 
         [State("write-input-box", "value"),
         #  State('write-radio-select-context', 'value'),
+        State('write-radio-select-model', 'value'),
          State('write-radio-select-words', 'value'),
          State('write-slider-temperature', 'value')
          ]
 )
 # def write_speech(n_clicks, n_submit, topic, ncontext, nwords, temperature):
-def write_draft_speech(n_clicks, topic, nwords, temperature):
+def write_draft_speech(n_clicks, topic, model, nwords, temperature):
 
     # Check if the search button was clicked
 
@@ -565,7 +602,7 @@ def write_draft_speech(n_clicks, topic, nwords, temperature):
         ncontext = 20
 
         audience = 'delegates to the WTO'
-        model="gpt-4"
+        # model="gpt-4"
         # topic = 'reglobalization'
         # topic = 'trade under most favoriate nation principle'
         # topic = 'ecommerce'
