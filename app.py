@@ -280,7 +280,7 @@ def render_page_content(pathname, logout_pathname):
             html.H6("Write based on the previous speeches", className="display-about"),
             html.Br(),
             dbc.Row([
-                # dbc.Col(
+                dbc.Col(
                 #         dbc.InputGroup([
                 #                 # dbc.Input(id="write-input-box", type="text", placeholder="Enter a topic: e.g. globalization OR digital trade"),
                 #                 dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalization OR digital trade"),
@@ -290,22 +290,22 @@ def render_page_content(pathname, logout_pathname):
                         
                 #     ),
 
-dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalization OR digital trade"),
+                    dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalization OR digital trade"),
 
-                    html.Div(
-                                # dbc.Button('Submit', id='submit-button', n_clicks=0, className="me-1"),
-                                dbc.Button(" Write about ...", id="write-submit-button", n_clicks=0),
-                                style={'textAlign': 'right'}
-                            )
+                    # html.Div(
+                    #             # dbc.Button('Submit', id='submit-button', n_clicks=0, className="me-1"),
+                    #             dbc.Button(" Write about ...", id="write-submit-button", n_clicks=0),
+                    #             style={'textAlign': 'right'}
+                    #         )
 
-                    
+                )
                 ], justify="center", className="header", id='search-container2',
 
-
+            
 
 
             ),
-            html.Br(),
+            # html.Br(),
             # dbc.Row(
             #     [
             #         dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
@@ -328,7 +328,7 @@ dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalizati
 
             dbc.Row(
                 [
-                    dbc.Col(html.Label('Model: '), width="auto", style={'margin-top':5,'margin-left':10}),
+                    dbc.Col(html.Label('Model: '), width="auto", style={'margin-top':5,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="write-radio-select-model",
@@ -348,17 +348,17 @@ dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalizati
 
             dbc.Row(
                 [
-                    dbc.Col(html.Label("Length of the draft:"), width="auto",  style={'margin-top':5,'margin-left':10}),
+                    dbc.Col(html.Label("Length (words):"), width="auto",  style={'margin-top':5,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="write-radio-select-words",
                             options=[
-                                {"label": "200 words", "value": 200},
-                                {"label": "300 words", "value": 300},
-                                {"label": "400 words", "value": 400},
-                                {"label": "500 words", "value": 500},
+                                {"label": "300", "value": 300},
+                                {"label": "500", "value": 500},
+                                {"label": "1000", "value": 1000},
+                                {"label": "1300", "value": 1300},
                             ],
-                            value=300,
+                            value=500,
                             inline=True,
                         ),
                         width=True,
@@ -370,20 +370,38 @@ dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalizati
 
             dbc.Row(
                 [
-                    dbc.Col(html.P("Degree of randomness (temperature): Increase for more creativity"), width="auto",  style={'margin-top':5,'margin-left':10}),
+                    # dbc.Col(html.P("Degree of randomness (temperature): Increase for more creativity"), width="100px",  style={'margin-top':5,'margin-left':10}),
+
+                    dbc.Col(html.P(["Degree of randomness (temperature): ", 
+                                    html.Br(), 
+                                    "Increase for more creativity"]), 
+                                    width="100px",  style={'margin-top':5,'margin-left':0}),
+
                     dbc.Col(
-                        dcc.Slider(0, 1, 0.1,
-                                value=0.5,
-                                id='write-slider-temperature',
-                        ),style={"margin-top": "20px"},
+                        dcc.Slider(0, 1, 0.1, value=0.5, id='write-slider-temperature'),style={"margin-top": "20px"},
                     ),
                 ],
                 align="center",
                 style={"margin-bottom": "1px"},
             ),
 
+            dbc.Row(
+                [
+                    dbc.Col(dbc.Button(" Write", id="write-submit-button", n_clicks=0),width={'size': 9, 'offset': 2}, className='text-right'
+                        ),
+                ],
+                align="right",
+                style={"margin-bottom": "1px"},
+            ),
+
+
+
 
             html.Hr(),
+
+
+
+
             dbc.Row([
                 dbc.Col([
                     dcc.Markdown('''
