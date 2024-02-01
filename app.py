@@ -47,6 +47,21 @@ tags = {
     'Subsidies':            'industrial subsidies grant',
 }
 
+
+# tags for topic keywords
+styles = {
+    'students':                     'to students: more inspiring, future oriented, less formal',
+    'think tanks':                  'to think tanks: more strategic',
+    'academics':                    'to academics: more academic, more economic terms',
+    'delegates/heads of states':    'to delegates/heads of states: more formal, more plitical, addressing more on policies',
+}
+
+
+
+
+
+
+
 speechdb = pd.read_parquet('data/speech-text-embedding.parquet')
 contextdb = speechdb[speechdb['n_tokens']>50].copy()
 speechlist = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
@@ -74,27 +89,31 @@ def generate_context(topic, ncontext=20):
     res = search_speech_db(contextdb, topic, ncontext=ncontext)
     return res['Text'].to_list(), res['similarities'].min(), res['similarities'].max()
 
-def build_prompt_with_context(topic, context=[], nwords=300, audience='government officials'):
+def build_prompt_with_context(topic, context=[], nwords=300, audience='government officials', additional='None'):
     return [{'role': 'system', 
              'content': f'''As a speech writer, you are tasked with composing a speech for the Director General of the World Trade Organization. \
                             The speech should address the specific topic provided by the user, incorporating relevant contexts and information as mentioned. \
-                            Ensure that the speech mirrors the style of the context given, adhering to the specified tone - be it formal, persuasive, informative, or any other. \
+                            User may also provide addtional requirement, background information, or outlines.
+                            Ensure that the speech used in the style suggested by user. A general rule is to be persuasive, informative, and use convincing figures. \
                             Additionally, the speech should be tailored to meet the exact length requirement set by the user, specified in the number of words. \
                             Your goal is to craft a speech that effectively conveys the WTO's perspective on the given topic, while maintaining the Director General's tone and style.'''
                     }, 
             {'role': 'user', 
              'content': f"""
-                        Topic:
-                        {topic}       
+                        Topics:
+                        {topic}       \
                             
                         The context is the following:
-                        {' '.join(context)}
+                        {' '.join(context)} \
+
+                        Follow the additional instructions or use the outlines below:
+                        {additional} \
 
                         Adjust the contents and tone for targeted audience:
-                        {audience}
+                        {audience} \
 
-                        Length:
-                        {nwords} words
+                        The number of words in the speech should be:
+                        {nwords} words \
 
                         Speech:
             """}]
@@ -104,7 +123,7 @@ def write_speech(message, temperature=0, model="gpt-35-turbo-16k"):
         engine=model,
         messages=message,
         temperature=temperature,
-        max_tokens=2000,
+        max_tokens=3000,
     )
     # Strip any punctuation or whitespace from the response
     return response.choices[0].message.content.strip('., ')
@@ -186,7 +205,7 @@ sidebar = html.Div([
                             ], vertical=True, pills=False,
                         ), id="collapse",
                     ),
-                    html.Div([html.P("V0.2 (20240111)",
+                    html.Div([html.P("V0.2 (20240131)",
                                 # className="lead",
                             ),],id="blurb-bottom",
                     ),
@@ -289,11 +308,12 @@ def render_page_content(pathname, logout_pathname):
             ),
 
             html.Br(),
-            html.H6("[Not operational] Additional information (requirements, contexts, outlines): "),
+            html.H6("Additional information (requirements, contexts, outlines): "),
             dbc.Row([
                 dbc.Col(
-                    dbc.Textarea(id="write-text-area",  placeholder="Enter a topic: e.g. globalization OR digital trade"), width=12,
-                )], justify="center", className="header", id='search-container2',
+                    dbc.Textarea(id="write-textarea-additional",  placeholder="Enter a topic: e.g. globalization OR digital trade", size="md",style={"width": "100%"})
+                )
+                ], justify="center", className="header", id='search-container2', 
             ),
             html.Br(),
             dbc.Row(
@@ -342,7 +362,18 @@ def render_page_content(pathname, logout_pathname):
                                     width=6,  style={'margin-top':5,'margin-left':0}),
 
                     dbc.Col(
-                        dcc.Slider(0, 1, 0.1, value=0.5, id='write-slider-temperature'),style={"margin-top": "20px"}, width=6,
+                        dcc.Slider(0, 1, 0.2, value=0.4, id='write-slider-temperature'),style={"margin-top": "20px"}, width=6,
+                        # dcc.Slider(0, 1,
+                        #             step=None,
+                        #             marks={
+                        #                 0: '0',
+                        #                 0.25: '0.25',
+                        #                 0.5: '0.5',
+                        #                 0.75: '0.75',
+                        #                 1: '1'
+                        #             },
+                        #             value=0.5
+                        #         )
                     ),
                 ],
                 align="center",
@@ -350,27 +381,46 @@ def render_page_content(pathname, logout_pathname):
             ),
 
 
-            html.Br(),
+            # html.Br(),
             dbc.Row(
                 [
                     # dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
-                    dbc.Col(html.H6('Number of relevent paragraphs as input: '), width=4, style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(html.H6('Number of paras as input: '), width=3, style={'margin-top':2,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="write-radio-select-context",
                             options=[
                                 {"label": '20', "value": 20},
                                 {"label": '30', "value": 30},
+                                {"label": '50', "value": 50},
                             ],
-                            value=20,
+                            value=30,
                             inline=True,
                         ),
-                        width=8,
+                        width=3,
                     ),
+                    dbc.Col(
+                        [
+                            html.H6('Audience and style'),
+                            dcc.Dropdown(
+                                id='write-dropdown-style',
+                                multi=False,
+                                options=[{'label': i[0], 'value': i[1]} for i in styles.items()],
+                                value='to students: more inspiring, future oriented, less formal',
+                                clearable=False
+                            ),
+                        ]
+                    )                    
                 ],
                 align="center",
                 style={"margin-bottom": "10px"},
             ),
+
+
+
+
+
+
 
             dbc.Row(
                 [
@@ -384,16 +434,17 @@ def render_page_content(pathname, logout_pathname):
 
             html.Hr(),
 
+            # dbc.Row([
+            #     dbc.Col([
+            #         html.P("Sample topics: "),
+            #     ])
+            # ]),
+
+
             dbc.Row([
+
                 dbc.Col([
                     html.P("Sample topics: "),
-                ])
-            ]),
-
-
-            dbc.Row([
-
-                dbc.Col([
                     dcc.Markdown('''
                                 - Trade and environment
                                 - Globalization and re-globalization
@@ -579,14 +630,16 @@ def render_page_content(pathname, logout_pathname):
         #  Input("write-input-box", "n_submit")
         ], 
         [State("write-input-box", "value"),
-        #  State('write-radio-select-context', 'value'),
-        State('write-radio-select-model', 'value'),
+         State('write-radio-select-context', 'value'),
+         State('write-radio-select-model', 'value'),
          State('write-radio-select-words', 'value'),
-         State('write-slider-temperature', 'value')
+         State('write-slider-temperature', 'value'),
+         State('write-dropdown-style', 'value'),
+         State('write-textarea-additional', 'value'),
          ]
 )
 # def write_speech(n_clicks, n_submit, topic, ncontext, nwords, temperature):
-def write_draft_speech(n_clicks, topic, model, nwords, temperature):
+def write_draft_speech(n_clicks, topic, ncontext, model, nwords, temperature, audience, additional):
 
     # Check if the search button was clicked
 
@@ -613,9 +666,9 @@ def write_draft_speech(n_clicks, topic, model, nwords, temperature):
         #         ),  {'display': 'none'}
 
 
-        ncontext = 20
+        # ncontext = 20
 
-        audience = 'delegates to the WTO'
+        # audience = 'delegates to the WTO'
         # model="gpt-4"
         # topic = 'reglobalization'
         # topic = 'trade under most favoriate nation principle'
@@ -630,7 +683,7 @@ def write_draft_speech(n_clicks, topic, model, nwords, temperature):
         context1 = ' '.join(context)
 
         # nwords = 300
-        message = build_prompt_with_context(topic, context, nwords, audience)
+        message = build_prompt_with_context(topic, context, nwords, audience, additional)
         # print(message)
         # message1 = ' '.join(message)
 
@@ -643,7 +696,10 @@ def write_draft_speech(n_clicks, topic, model, nwords, temperature):
                 dbc.Container(
                     [
                         dbc.Row(
-                            [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + '" and temperature = ' + str(temperature) + ' context_min =' + str(c_min) )],
+                            [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + \
+                                    '" and temperature = ' + str(temperature) + ' context_min =' + str(c_min) +\
+                                        ' words =' + str(nwords)
+                                        )],
                             justify="between",
                             style={"margin-bottom": "5px"},
                         ),
