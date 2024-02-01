@@ -280,63 +280,49 @@ def render_page_content(pathname, logout_pathname):
             html.H6("Write based on the previous speeches", className="display-about"),
             html.Br(),
             dbc.Row([
+                dbc.Col([
+                    html.P("Topics: ", style={'font-weight': 'bold'}),
+                ])
+            ]),
+
+
+            dbc.Row([
                 dbc.Col(
-                #         dbc.InputGroup([
-                #                 # dbc.Input(id="write-input-box", type="text", placeholder="Enter a topic: e.g. globalization OR digital trade"),
-                #                 dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalization OR digital trade"),
-                #                 # dbc.Button(" Write about ...", id="write-submit-button", n_clicks=0),
-                #             ]
-                #         ), width=12,
-                        
-                #     ),
-
-                    dbc.Textarea(id="write-input-box",  placeholder="Enter a topic: e.g. globalization OR digital trade"),
-
-                    # html.Div(
-                    #             # dbc.Button('Submit', id='submit-button', n_clicks=0, className="me-1"),
-                    #             dbc.Button(" Write about ...", id="write-submit-button", n_clicks=0),
-                    #             style={'textAlign': 'right'}
-                    #         )
-
-                )
-                ], justify="center", className="header", id='search-container2',
-
-            
-
-
+                    dbc.InputGroup([
+                            dbc.Input(id="write-input-box", type="text", placeholder="Enter a topic: e.g. globalization OR digital trade"),
+                        ]
+                    ), width=12,
+                )], justify="center", className="header", id='search-container1',
             ),
-            # html.Br(),
-            # dbc.Row(
-            #     [
-            #         dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
-            #         dbc.Col(
-            #             dbc.RadioItems(
-            #                 id="write-radio-select-context",
-            #                 options=[
-            #                     {"label": '20', "value": 20},
-            #                     # {"label": '30', "value": 30},
-            #                 ],
-            #                 value=20,
-            #                 inline=True,
-            #             ),
-            #             width=True,
-            #         ),
-            #     ],
-            #     align="center",
-            #     style={"margin-bottom": "10px"},
-            # ),
 
+
+
+
+            dbc.Row([
+                dbc.Col([
+                    html.P("Additional information (requirements, contexts, outlines): ", style={'font-weight': 'bold'}),
+                ])
+            ]),
+
+
+
+            dbc.Row([
+                dbc.Col(
+                    dbc.Textarea(id="write-text-area",  placeholder="Enter a topic: e.g. globalization OR digital trade"), width=12,
+                )], justify="center", className="header", id='search-container2',
+            ),
+            html.Br(),
             dbc.Row(
                 [
-                    dbc.Col(html.Label('Model: '), width="auto", style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
                     dbc.Col(
                         dbc.RadioItems(
-                            id="write-radio-select-model",
+                            id="write-radio-select-context",
                             options=[
-                                {"label": 'ChatGPT 3.5 16k', "value": 'gpt-35-turbo-16k'},
-                                {"label": 'ChatGPT 4', "value": 'gpt-4'},
+                                {"label": '20', "value": 20},
+                                # {"label": '30', "value": 30},
                             ],
-                            value='gpt-35-turbo-16k',
+                            value=20,
                             inline=True,
                         ),
                         width=True,
@@ -348,7 +334,21 @@ def render_page_content(pathname, logout_pathname):
 
             dbc.Row(
                 [
-                    dbc.Col(html.Label("Length (words):"), width="auto",  style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(html.Label('Model: ', style={'font-weight': 'bold'}), width="auto", style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(
+                        dbc.RadioItems(
+                            id="write-radio-select-model",
+                            options=[
+                                {"label": 'ChatGPT 3.5 16k', "value": 'gpt-35-turbo-16k'},
+                                {"label": 'ChatGPT 4', "value": 'gpt-4'},
+                            ],
+                            value='gpt-35-turbo-16k',
+                            inline=True,
+                        ),
+                        width=4,
+                    ),
+
+                    dbc.Col(html.Label("Length (words):", style={'font-weight': 'bold'}), width="auto",  style={'margin-top':5,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="write-radio-select-words",
@@ -361,11 +361,40 @@ def render_page_content(pathname, logout_pathname):
                             value=500,
                             inline=True,
                         ),
-                        width=True,
+                        width=5,
                     ),
+
+
+
+
+
+
                 ],
                 align="center",
-                style={"margin-bottom": "10px"},
+                
+                style={"margin-bottom": "0px"},
+            ),
+
+            dbc.Row(
+                [
+                    # dbc.Col(html.Label("Length (words):", style={'font-weight': 'bold'}), width="auto",  style={'margin-top':5,'margin-left':0}),
+                    # dbc.Col(
+                    #     dbc.RadioItems(
+                    #         id="write-radio-select-words",
+                    #         options=[
+                    #             {"label": "300", "value": 300},
+                    #             {"label": "500", "value": 500},
+                    #             {"label": "1000", "value": 1000},
+                    #             {"label": "1300", "value": 1300},
+                    #         ],
+                    #         value=500,
+                    #         inline=True,
+                    #     ),
+                    #     width=True,
+                    # ),
+                ],
+                align="center",
+                style={"margin-bottom": "0px"},
             ),
 
             dbc.Row(
@@ -374,15 +403,15 @@ def render_page_content(pathname, logout_pathname):
 
                     dbc.Col(html.P(["Degree of randomness (temperature): ", 
                                     html.Br(), 
-                                    "Increase for more creativity"]), 
-                                    width="100px",  style={'margin-top':5,'margin-left':0}),
+                                    "Increase for more creativity"], style={'font-weight': 'bold'}), 
+                                    width=4,  style={'margin-top':5,'margin-left':0}),
 
                     dbc.Col(
-                        dcc.Slider(0, 1, 0.1, value=0.5, id='write-slider-temperature'),style={"margin-top": "20px"},
+                        dcc.Slider(0, 1, 0.1, value=0.5, id='write-slider-temperature'),style={"margin-top": "20px"},width=7,
                     ),
                 ],
                 align="center",
-                style={"margin-bottom": "1px"},
+                style={"margin-bottom": "0px"},
             ),
 
             dbc.Row(
@@ -399,25 +428,36 @@ def render_page_content(pathname, logout_pathname):
 
             html.Hr(),
 
-
+            dbc.Row([
+                dbc.Col([
+                    html.P("Sample topics: "),
+                ])
+            ]),
 
 
             dbc.Row([
+
                 dbc.Col([
                     dcc.Markdown('''
-                                Sample topics:
                                 - Trade and environment
                                 - Globalization and re-globalization
                                 - WTO and multilateral trading system
                                 - US and China trade war
+                                '''
+                        ),
+                ], width=6),
+                dbc.Col([
+                    dcc.Markdown('''
                                 - Industrial policy
                                 - Subsidies
                                 - Least developed country and trade
                                 - Africa and trade
                                 - Digital trade '''
                         ),
-                ], width=12),
+                ], width=6),
+
             ], justify="center", className="header", id='write-sample-topics'),
+
             html.Br(),
             dbc.Row([ 
                 # html.Div(id="search-results", className="results"),
