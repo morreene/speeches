@@ -276,20 +276,36 @@ def render_page_content(pathname, logout_pathname):
         return dcc.Location(pathname="/login", id="redirect-to-login"), "/logout"
 
     elif pathname in ["/","/login", "/page-1"]:
-        return html.Div([
+        return dbc.Container([
             html.H6("Write based on the previous speeches", className="display-about"),
             html.Br(),
-            html.H6("Topics, keywords:"),
+            dbc.Row([
+                dbc.Col([
+                    html.P("Topics: ", style={'font-weight': 'bold'}),
+                ])
+            ]),
+
+
             dbc.Row([
                 dbc.Col(
                     dbc.InputGroup([
                             dbc.Input(id="write-input-box", type="text", placeholder="Enter a topic: e.g. globalization OR digital trade"),
-                    ])
+                        ]
+                    ), width=12,
                 )], justify="center", className="header", id='search-container1',
             ),
 
-            html.Br(),
-            html.H6("[Not operational] Additional information (requirements, contexts, outlines): "),
+
+
+
+            dbc.Row([
+                dbc.Col([
+                    html.P("Additional information (requirements, contexts, outlines): ", style={'font-weight': 'bold'}),
+                ])
+            ]),
+
+
+
             dbc.Row([
                 dbc.Col(
                     dbc.Textarea(id="write-text-area",  placeholder="Enter a topic: e.g. globalization OR digital trade"), width=12,
@@ -298,7 +314,27 @@ def render_page_content(pathname, logout_pathname):
             html.Br(),
             dbc.Row(
                 [
-                    dbc.Col(html.H6('Model: '), width=2, style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
+                    dbc.Col(
+                        dbc.RadioItems(
+                            id="write-radio-select-context",
+                            options=[
+                                {"label": '20', "value": 20},
+                                # {"label": '30', "value": 30},
+                            ],
+                            value=20,
+                            inline=True,
+                        ),
+                        width=True,
+                    ),
+                ],
+                align="center",
+                style={"margin-bottom": "10px"},
+            ),
+
+            dbc.Row(
+                [
+                    dbc.Col(html.Label('Model: ', style={'font-weight': 'bold'}), width="auto", style={'margin-top':5,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="write-radio-select-model",
@@ -312,7 +348,7 @@ def render_page_content(pathname, logout_pathname):
                         width=4,
                     ),
 
-                    dbc.Col(html.H6('Length (words):'), width=2, style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(html.Label("Length (words):", style={'font-weight': 'bold'}), width="auto",  style={'margin-top':5,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="write-radio-select-words",
@@ -325,51 +361,57 @@ def render_page_content(pathname, logout_pathname):
                             value=500,
                             inline=True,
                         ),
-                        width=4,
+                        width=5,
                     ),
+
+
+
+
+
+
+                ],
+                align="center",
+                
+                style={"margin-bottom": "0px"},
+            ),
+
+            dbc.Row(
+                [
+                    # dbc.Col(html.Label("Length (words):", style={'font-weight': 'bold'}), width="auto",  style={'margin-top':5,'margin-left':0}),
+                    # dbc.Col(
+                    #     dbc.RadioItems(
+                    #         id="write-radio-select-words",
+                    #         options=[
+                    #             {"label": "300", "value": 300},
+                    #             {"label": "500", "value": 500},
+                    #             {"label": "1000", "value": 1000},
+                    #             {"label": "1300", "value": 1300},
+                    #         ],
+                    #         value=500,
+                    #         inline=True,
+                    #     ),
+                    #     width=True,
+                    # ),
                 ],
                 align="center",
                 style={"margin-bottom": "0px"},
             ),
-
 
             dbc.Row(
                 [
                     # dbc.Col(html.P("Degree of randomness (temperature): Increase for more creativity"), width="100px",  style={'margin-top':5,'margin-left':10}),
 
-                    dbc.Col(html.H6(["Degree of randomness (temperature): ", html.Br(), 
-                                    "Increase for more creativity"]), 
-                                    width=6,  style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(html.P(["Degree of randomness (temperature): ", 
+                                    html.Br(), 
+                                    "Increase for more creativity"], style={'font-weight': 'bold'}), 
+                                    width=4,  style={'margin-top':5,'margin-left':0}),
 
                     dbc.Col(
-                        dcc.Slider(0, 1, 0.1, value=0.5, id='write-slider-temperature'),style={"margin-top": "20px"}, width=6,
+                        dcc.Slider(0, 1, 0.1, value=0.5, id='write-slider-temperature'),style={"margin-top": "20px"},width=7,
                     ),
                 ],
                 align="center",
                 style={"margin-bottom": "0px"},
-            ),
-
-
-            html.Br(),
-            dbc.Row(
-                [
-                    # dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
-                    dbc.Col(html.H6('Number of relevent paragraphs as input: '), width=4, style={'margin-top':5,'margin-left':0}),
-                    dbc.Col(
-                        dbc.RadioItems(
-                            id="write-radio-select-context",
-                            options=[
-                                {"label": '20', "value": 20},
-                                {"label": '30', "value": 30},
-                            ],
-                            value=20,
-                            inline=True,
-                        ),
-                        width=8,
-                    ),
-                ],
-                align="center",
-                style={"margin-bottom": "10px"},
             ),
 
             dbc.Row(
@@ -380,6 +422,8 @@ def render_page_content(pathname, logout_pathname):
                 align="right",
                 style={"margin-bottom": "1px"},
             ),
+
+
 
 
             html.Hr(),
