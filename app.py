@@ -50,7 +50,7 @@ tags = {
 
 # tags for topic keywords
 styles = {
-    'Delegates/Heads of states (Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative)':    'speak to delegates/heads of states: Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative',
+    'Delegates/Heads of states':    'speak to delegates/heads of states: Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative',
     'Think tanks':                  'speak to think tanks: Diplomatic, Strategic, Authoritative, Analytical, Persuasive, Forward-thinking, Inclusive, Policy-focused, Insightful, Collaborative',
     'Academics':                    'speak to academics: Scholarly, Analytical, Informed, Thought-provoking, Collaborative, Insightful, Respectful, Comprehensive, Evidence-based, Innovative',
     'Students':                     'speak to students: Inspirational, engaging, informative, motivational, relatable, empathetic, uplifting, visionary, accessible, encouraging',
