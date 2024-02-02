@@ -199,7 +199,7 @@ sidebar = html.Div([
                             ], vertical=True, pills=False,
                         ), id="collapse",
                     ),
-                    html.Div([html.P("V0.2 (20240131)",
+                    html.Div([html.P("V0.3 (20240131)",
                                 # className="lead",
                             ),],id="blurb-bottom",
                     ),
@@ -350,12 +350,11 @@ def render_page_content(pathname, logout_pathname):
                 [
                     # dbc.Col(html.P("Degree of randomness (temperature): Increase for more creativity"), width="100px",  style={'margin-top':5,'margin-left':10}),
 
-                    dbc.Col(html.H6(["Degree of randomness (temperature): ", html.Br(), 
-                                    "Increase for more creativity"]), 
-                                    width=6,  style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(html.H6(["Degree of randomness (temperature): more creativity"]), 
+                                    width=3,  style={'margin-top':5,'margin-left':0}),
 
                     dbc.Col(
-                        dcc.Slider(0, 1, 0.1, value=0.4, id='write-slider-temperature'),style={"margin-top": "20px"}, width=6,
+                        dcc.Slider(0, 1, 0.2, value=0.4, id='write-slider-temperature'),style={"margin-top": "20px"}, width=3,
                         # dcc.Slider(0, 1,
                         #             step=None,
                         #             marks={

@@ -74,8 +74,8 @@
 }
 
 
+@media (min-width: 48em) {
 #page-content {
-    margin-left: 16rem;
-    margin-right: 2rem;
     width: 75%;
+}
 }
