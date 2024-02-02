@@ -289,9 +289,9 @@ def render_page_content(pathname, logout_pathname):
 
     elif pathname in ["/","/login", "/page-1"]:
         return html.Div([
-            html.H4("Draft Speech Using Guidelines & Background from Past Speeches", ),
+            html.H4("Draft Speech Using Guidelines & Background from Past Speeches and Knowledge Base (KB)", ),
             html.Br(),
-            html.H6("Enter Topics & Keywords for Speech Content and Past Speech Searches: [Required]"),
+            html.H6("Enter Topics & Keywords for Speech Content and KB Searches: [Required]"),
             dbc.Row([
                 dbc.Col(
                     dbc.InputGroup([
@@ -304,26 +304,18 @@ def render_page_content(pathname, logout_pathname):
             html.H6("Specify Additional Requirements, Background, and Outlines:"),
             dbc.Row([
                 dbc.Col(
-                    dbc.Textarea(id="write-textarea-additional",  placeholder="Enter a topic: e.g. globalization OR digital trade", size="md",rows=4, style={"width": "100%"})
+                    dbc.Textarea(id="write-textarea-additional",  placeholder="Enter Additional Requirements, Background, and Outlines:", size="md",rows=4, style={"width": "100%"})
                 )
                 ], justify="center", className="header", id='search-container2', 
             ),
-            html.Br(),
             dbc.Row(
                 [
-                    dbc.Col(html.H6('Model to use: '), width=2, style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(html.H6(["Temperature (creativity):"]), 
+                                    width=3,  style={'margin-top':5,'margin-left':0}),
                     dbc.Col(
-                        dbc.RadioItems(
-                            id="write-radio-select-model",
-                            options=[
-                                {"label": 'ChatGPT 3.5 Turbo 16k', "value": 'gpt-35-turbo-16k'},
-                                {"label": 'ChatGPT 4', "value": 'gpt-4'},
-                            ],
-                            value='gpt-35-turbo-16k',
-                            inline=True,
-                        ),
-                        width=4,
+                        dcc.Slider(0, 1, 0.2, value=0.4, id='write-slider-temperature'),style={"margin-top": "20px"}, width=3,
                     ),
+
 
                     dbc.Col(html.H6('Length (words):'), width=2, style={'margin-top':5,'margin-left':0}),
                     dbc.Col(
@@ -340,42 +332,49 @@ def render_page_content(pathname, logout_pathname):
                         ),
                         width=4,
                     ),
-                ],
-                align="center",
-                style={"margin-bottom": "0px"},
-            ),
+                ], align="center", style={"margin-bottom": "0px"}),
 
-
+            html.Br(),
             dbc.Row(
                 [
-                    # dbc.Col(html.P("Degree of randomness (temperature): Increase for more creativity"), width="100px",  style={'margin-top':5,'margin-left':10}),
-
-                    dbc.Col(html.H6(["Degree of randomness (temperature): more creativity"]), 
-                                    width=3,  style={'margin-top':5,'margin-left':0}),
-
+                    dbc.Col(html.H6('Audience and style: '), width=3, style={'margin-top':5,'margin-left':0}),                    
                     dbc.Col(
-                        dcc.Slider(0, 1, 0.2, value=0.4, id='write-slider-temperature'),style={"margin-top": "20px"}, width=3,
-                        # dcc.Slider(0, 1,
-                        #             step=None,
-                        #             marks={
-                        #                 0: '0',
-                        #                 0.25: '0.25',
-                        #                 0.5: '0.5',
-                        #                 0.75: '0.75',
-                        #                 1: '1'
-                        #             },
-                        #             value=0.5
-                        #         )
-                    ),
+                        [
+                            # html.H6('Audience and style'),
+                            dcc.Dropdown(
+                                id='write-dropdown-style',
+                                multi=False,
+                                options=[{'label': i[0], 'value': i[1]} for i in styles.items()],
+                                value='speak to delegates/heads of states: Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative',
+                                clearable=False
+                            ),
+                        ], width=3,
+                    )                    
                 ],
                 align="center",
-                style={"margin-bottom": "0px"},
+                style={"margin-bottom": "10px"},
             ),
 
 
+            html.Br(),
             dbc.Row(
                 [
-                    dbc.Col(html.H6('Number of paras from past speeches as inputs: '), width=3, style={'margin-top':2,'margin-left':0}),
+                    dbc.Col(html.H6('[Model to use:]'), width=2, style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(
+                        dbc.RadioItems(
+                            id="write-radio-select-model",
+                            options=[
+                                {"label": 'ChatGPT 3.5 Turbo 16k', "value": 'gpt-35-turbo-16k'},
+                                {"label": 'ChatGPT 4', "value": 'gpt-4'},
+                            ],
+                            value='gpt-35-turbo-16k',
+                            inline=True,
+                        ),
+                        width=4,
+                    ),
+
+
+                    dbc.Col(html.H6('[Number of paras from KB as inputs:]'), width=4, style={'margin-top':2,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="write-radio-select-context",
@@ -387,23 +386,11 @@ def render_page_content(pathname, logout_pathname):
                             value=30,
                             inline=True,
                         ),
-                        width=3,
+                        width=2,
                     ),
-                    dbc.Col(
-                        [
-                            html.H6('Audience and style'),
-                            dcc.Dropdown(
-                                id='write-dropdown-style',
-                                multi=False,
-                                options=[{'label': i[0], 'value': i[1]} for i in styles.items()],
-                                value='speak to delegates/heads of states: Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative',
-                                clearable=False
-                            ),
-                        ]
-                    )                    
                 ],
                 align="center",
-                style={"margin-bottom": "10px"},
+                style={"margin-bottom": "0px"},
             ),
 
             html.Br(),
@@ -413,51 +400,12 @@ def render_page_content(pathname, logout_pathname):
                         ),
                 ],
                 align="right",
-                # style={"margin-bottom": "1px"},
             ),
 
 
             html.Hr(),
-
-            # dbc.Row([
-            #     dbc.Col([
-            #         html.P("Sample topics: "),
-            #     ])
-            # ]),
-
-
-            # dbc.Row([
-
-            #     dbc.Col([
-            #         html.P("Sample topics: "),
-            #         dcc.Markdown('''
-            #                     - Trade and environment
-            #                     - Globalization and re-globalization
-            #                     - WTO and multilateral trading system
-            #                     - US and China trade war
-            #                     '''
-            #             ),
-            #     ], width=6),
-            #     dbc.Col([
-            #         dcc.Markdown('''
-            #                     - Industrial policy
-            #                     - Subsidies
-            #                     - Least developed country and trade
-            #                     - Africa and trade
-            #                     - Digital trade '''
-            #             ),
-            #     ], width=6),
-
-            # ], justify="center", className="header", id='write-sample-topics'),
-
-
             dbc.Row([
-                dbc.Row(
-                    dbc.Col(
-                        html.H6("Sample topic: "),
-                        width=12
-                    )
-                ),
+                dbc.Col(html.H6("Sample topic: ", className='text-left'),  width=12),
                 dbc.Row([
                     dbc.Col(
                         dcc.Markdown('''
@@ -465,12 +413,12 @@ def render_page_content(pathname, logout_pathname):
                             - Globalization and re-globalization
                             - WTO and multilateral trading system
                             - US and China trade war
+                            - Industrial policy                                     
                         '''),
                         width=6
                     ),
                     dbc.Col(
                         dcc.Markdown('''
-                            - Industrial policy
                             - Subsidies
                             - Least developed country and trade
                             - Africa and trade
@@ -480,28 +428,25 @@ def render_page_content(pathname, logout_pathname):
                         width=6
                     ),
                 ]),
-            ], justify="left", className="header", id='write-sample-topics'),
-
-
-
-
-
-
-
-
-
-
-
-
-
+            ], justify="center", #className="header", 
+            id='write-sample-topics'),
 
             html.Br(),
-            dbc.Row([ 
-                # html.Div(id="search-results", className="results"),
-                dbc.Col([
-                        dcc.Loading(id="loading2", type="default", children=html.Div(id="write-results"), fullscreen=False),
-                    ], width=12),
-            ], justify="center"),
+            dbc.Row([
+                dbc.Col(
+                    dcc.Loading(
+                        id="loading2", 
+                        type="default", 
+                        children=html.Div(id="write-results"), 
+                        fullscreen=False,
+                        style={"position":"absolute", "left":"300px", "top":"20px"}
+                    ),
+                    width=12
+                ),
+            ], justify="center")
+
+
+
         ]), pathname
 
     elif pathname == "/page-2":
@@ -678,35 +623,10 @@ def write_draft_speech(n_clicks, topic, ncontext, model, nwords, temperature, au
     if n_clicks  <=0  or n_clicks is None or topic=='' or topic is None:
         return "",  None
     else:
-
-        # return html.Div(
-        #             dbc.Container(
-        #                 [
-        #                     dbc.Row(
-        #                         [html.P('Draft (' + str(nwords) + ' words): ' + 'topic = "' + topic + '" and Temperature = ' + str(temperature) )],
-        #                         justify="between",
-        #                         style={"margin-bottom": "5px"},
-        #                     ),
-        #                     # dbc.Row(
-        #                     #     [html.P(dcc.Markdown(draft))],
-        #                     #     justify="between",
-        #                     # ),
-        #                 ],
-        #             )
-        #         ),  {'display': 'none'}
-
-
         # ncontext = 20
-
         # audience = 'delegates to the WTO'
         # model="gpt-4"
         # topic = 'reglobalization'
-        # topic = 'trade under most favoriate nation principle'
-        # topic = 'ecommerce'
-        # topic = 'trade in Africa'
-        # topic = 'Trade and environment'
-        # topic = "China and US trade war"
-        # topic = topic
         # ncontext = 20
         context, c_min, c_max = generate_context(topic, ncontext)
 
@@ -740,25 +660,6 @@ def write_draft_speech(n_clicks, topic, ncontext, model, nwords, temperature, au
                     ],
                 )
             ),  {'display': 'none'}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
