@@ -50,17 +50,11 @@ tags = {
 
 # tags for topic keywords
 styles = {
-    'students':                     'to students: more inspiring, future oriented, less formal',
-    'think tanks':                  'to think tanks: more strategic',
-    'academics':                    'to academics: more academic, more economic terms',
-    'delegates/heads of states':    'to delegates/heads of states: more formal, more plitical, addressing more on policies',
+    'Delegates/Heads of states':    'speak to delegates/heads of states: Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative',
+    'Think tanks':                  'speak to think tanks: Diplomatic, Strategic, Authoritative, Analytical, Persuasive, Forward-thinking, Inclusive, Policy-focused, Insightful, Collaborative',
+    'Academics':                    'speak to academics: Scholarly, Analytical, Informed, Thought-provoking, Collaborative, Insightful, Respectful, Comprehensive, Evidence-based, Innovative',
+    'Students':                     'speak to students: Inspirational, engaging, informative, motivational, relatable, empathetic, uplifting, visionary, accessible, encouraging',
 }
-
-
-
-
-
-
 
 speechdb = pd.read_parquet('data/speech-text-embedding.parquet')
 contextdb = speechdb[speechdb['n_tokens']>50].copy()
@@ -96,17 +90,17 @@ def build_prompt_with_context(topic, context=[], nwords=300, audience='governmen
                             User may also provide addtional requirement, background information, or outlines.
                             Ensure that the speech used in the style suggested by user. A general rule is to be persuasive, informative, and use convincing figures. \
                             Additionally, the speech should be tailored to meet the exact length requirement set by the user, specified in the number of words. \
-                            Your goal is to craft a speech that effectively conveys the WTO's perspective on the given topic, while maintaining the Director General's tone and style.'''
+                            Your task is to write a speech that effectively conveys the WTO's perspective on the given topic, while maintaining the Director General's tone and style.'''
                     }, 
             {'role': 'user', 
              'content': f"""
                         Topics:
-                        {topic}       \
+                        {topic} \
                             
-                        The context is the following:
+                        Use the following contexts:
                         {' '.join(context)} \
 
-                        Follow the additional instructions or use the outlines below:
+                        Follow the additional instructions or outlines or use the additional information as provided below:
                         {additional} \
 
                         Adjust the contents and tone for targeted audience:
@@ -265,7 +259,6 @@ app.layout = html.Div([
             )
         ), id='login-facet',className="login-page",
     ),
-
     html.Div([sidebar, content], id='page-layout', style={'display': 'none'}),
 ])
 
@@ -296,7 +289,7 @@ def render_page_content(pathname, logout_pathname):
 
     elif pathname in ["/","/login", "/page-1"]:
         return html.Div([
-            html.H6("Write based on the previous speeches", className="display-about"),
+            html.H4("Draft a speech based on the requirement and previous speeches as contexts", ),
             html.Br(),
             html.H6("Topics, keywords:"),
             dbc.Row([
@@ -308,10 +301,10 @@ def render_page_content(pathname, logout_pathname):
             ),
 
             html.Br(),
-            html.H6("Additional information (requirements, contexts, outlines): "),
+            html.H6("Additional (requirements, information, contexts, outlines): "),
             dbc.Row([
                 dbc.Col(
-                    dbc.Textarea(id="write-textarea-additional",  placeholder="Enter a topic: e.g. globalization OR digital trade", size="md",style={"width": "100%"})
+                    dbc.Textarea(id="write-textarea-additional",  placeholder="Enter a topic: e.g. globalization OR digital trade", size="md",rows=4, style={"width": "100%"})
                 )
                 ], justify="center", className="header", id='search-container2', 
             ),
@@ -381,10 +374,8 @@ def render_page_content(pathname, logout_pathname):
             ),
 
 
-            # html.Br(),
             dbc.Row(
                 [
-                    # dbc.Col(html.Label('Number of relevent paragraphs as input: '), width="auto", style={'margin-top':5,'margin-left':10}),
                     dbc.Col(html.H6('Number of paras as input: '), width=3, style={'margin-top':2,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
@@ -406,7 +397,7 @@ def render_page_content(pathname, logout_pathname):
                                 id='write-dropdown-style',
                                 multi=False,
                                 options=[{'label': i[0], 'value': i[1]} for i in styles.items()],
-                                value='to students: more inspiring, future oriented, less formal',
+                                value='speak to delegates/heads of states: Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative',
                                 clearable=False
                             ),
                         ]
@@ -416,19 +407,14 @@ def render_page_content(pathname, logout_pathname):
                 style={"margin-bottom": "10px"},
             ),
 
-
-
-
-
-
-
+            html.Br(),
             dbc.Row(
                 [
-                    dbc.Col(dbc.Button(" Write", id="write-submit-button", n_clicks=0),width={'size': 9, 'offset': 2}, className='text-right'
+                    dbc.Col(dbc.Button("Draft speech ...", id="write-submit-button", n_clicks=0, color='info'), width={'size': 12}, className='text-right'
                         ),
                 ],
                 align="right",
-                style={"margin-bottom": "1px"},
+                # style={"margin-bottom": "1px"},
             ),
 
 
@@ -441,29 +427,73 @@ def render_page_content(pathname, logout_pathname):
             # ]),
 
 
+            # dbc.Row([
+
+            #     dbc.Col([
+            #         html.P("Sample topics: "),
+            #         dcc.Markdown('''
+            #                     - Trade and environment
+            #                     - Globalization and re-globalization
+            #                     - WTO and multilateral trading system
+            #                     - US and China trade war
+            #                     '''
+            #             ),
+            #     ], width=6),
+            #     dbc.Col([
+            #         dcc.Markdown('''
+            #                     - Industrial policy
+            #                     - Subsidies
+            #                     - Least developed country and trade
+            #                     - Africa and trade
+            #                     - Digital trade '''
+            #             ),
+            #     ], width=6),
+
+            # ], justify="center", className="header", id='write-sample-topics'),
+
+
             dbc.Row([
-
-                dbc.Col([
-                    html.P("Sample topics: "),
-                    dcc.Markdown('''
-                                - Trade and environment
-                                - Globalization and re-globalization
-                                - WTO and multilateral trading system
-                                - US and China trade war
-                                '''
-                        ),
-                ], width=6),
-                dbc.Col([
-                    dcc.Markdown('''
-                                - Industrial policy
-                                - Subsidies
-                                - Least developed country and trade
-                                - Africa and trade
-                                - Digital trade '''
-                        ),
-                ], width=6),
-
+                dbc.Row(
+                    dbc.Col(
+                        html.H6("Sample topic: "),
+                        width=12
+                    )
+                ),
+                dbc.Row([
+                    dbc.Col(
+                        dcc.Markdown('''
+                            - Trade and environment
+                            - Globalization and re-globalization
+                            - WTO and multilateral trading system
+                            - US and China trade war
+                        '''),
+                        width=6
+                    ),
+                    dbc.Col(
+                        dcc.Markdown('''
+                            - Industrial policy
+                            - Subsidies
+                            - Least developed country and trade
+                            - Africa and trade
+                            - Digital trade
+                        '''),
+                        width=6
+                    ),
+                ]),
             ], justify="center", className="header", id='write-sample-topics'),
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             html.Br(),
             dbc.Row([ 
@@ -697,8 +727,8 @@ def write_draft_speech(n_clicks, topic, ncontext, model, nwords, temperature, au
                     [
                         dbc.Row(
                             [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + \
-                                    '" and temperature = ' + str(temperature) + ' context_min =' + str(c_min) +\
-                                        ' words =' + str(nwords)
+                                    '", temperature = ' + str(temperature) + ', context min score =' + str(c_min) +\
+                                        ', target words =' + str(nwords) + ', medel =' + str(model)
                                         )],
                             justify="between",
                             style={"margin-bottom": "5px"},
