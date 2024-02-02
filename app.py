@@ -50,7 +50,7 @@ tags = {
 
 # tags for topic keywords
 styles = {
-    'Delegates/Heads of states':    'speak to delegates/heads of states: Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative',
+    'Delegates/Heads of states (Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative)':    'speak to delegates/heads of states: Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative',
     'Think tanks':                  'speak to think tanks: Diplomatic, Strategic, Authoritative, Analytical, Persuasive, Forward-thinking, Inclusive, Policy-focused, Insightful, Collaborative',
     'Academics':                    'speak to academics: Scholarly, Analytical, Informed, Thought-provoking, Collaborative, Insightful, Respectful, Comprehensive, Evidence-based, Innovative',
     'Students':                     'speak to students: Inspirational, engaging, informative, motivational, relatable, empathetic, uplifting, visionary, accessible, encouraging',
@@ -289,9 +289,9 @@ def render_page_content(pathname, logout_pathname):
 
     elif pathname in ["/","/login", "/page-1"]:
         return html.Div([
-            html.H4("Draft a speech based on the requirement and previous speeches as contexts", ),
+            html.H4("Draft Speech Using Guidelines & Background from Past Speeches", ),
             html.Br(),
-            html.H6("Topics, keywords:"),
+            html.H6("Enter Topics & Keywords for Speech Content and Past Speech Searches: [Required]"),
             dbc.Row([
                 dbc.Col(
                     dbc.InputGroup([
@@ -301,7 +301,7 @@ def render_page_content(pathname, logout_pathname):
             ),
 
             html.Br(),
-            html.H6("Additional (requirements, information, contexts, outlines): "),
+            html.H6("Specify Additional Requirements, Background, and Outlines:"),
             dbc.Row([
                 dbc.Col(
                     dbc.Textarea(id="write-textarea-additional",  placeholder="Enter a topic: e.g. globalization OR digital trade", size="md",rows=4, style={"width": "100%"})
@@ -311,12 +311,12 @@ def render_page_content(pathname, logout_pathname):
             html.Br(),
             dbc.Row(
                 [
-                    dbc.Col(html.H6('Model: '), width=2, style={'margin-top':5,'margin-left':0}),
+                    dbc.Col(html.H6('Model to use: '), width=2, style={'margin-top':5,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="write-radio-select-model",
                             options=[
-                                {"label": 'ChatGPT 3.5 16k', "value": 'gpt-35-turbo-16k'},
+                                {"label": 'ChatGPT 3.5 Turbo 16k', "value": 'gpt-35-turbo-16k'},
                                 {"label": 'ChatGPT 4', "value": 'gpt-4'},
                             ],
                             value='gpt-35-turbo-16k',
@@ -355,7 +355,7 @@ def render_page_content(pathname, logout_pathname):
                                     width=6,  style={'margin-top':5,'margin-left':0}),
 
                     dbc.Col(
-                        dcc.Slider(0, 1, 0.2, value=0.4, id='write-slider-temperature'),style={"margin-top": "20px"}, width=6,
+                        dcc.Slider(0, 1, 0.1, value=0.4, id='write-slider-temperature'),style={"margin-top": "20px"}, width=6,
                         # dcc.Slider(0, 1,
                         #             step=None,
                         #             marks={
@@ -376,7 +376,7 @@ def render_page_content(pathname, logout_pathname):
 
             dbc.Row(
                 [
-                    dbc.Col(html.H6('Number of paras as input: '), width=3, style={'margin-top':2,'margin-left':0}),
+                    dbc.Col(html.H6('Number of paras from past speeches as inputs: '), width=3, style={'margin-top':2,'margin-left':0}),
                     dbc.Col(
                         dbc.RadioItems(
                             id="write-radio-select-context",
@@ -476,11 +476,12 @@ def render_page_content(pathname, logout_pathname):
                             - Least developed country and trade
                             - Africa and trade
                             - Digital trade
+                            - Davos Ministerial Conference, MC13, Growth, Transportation, Fragmentation, Uncertainty, Green trade, Service, Trade resilience.
                         '''),
                         width=6
                     ),
                 ]),
-            ], justify="center", className="header", id='write-sample-topics'),
+            ], justify="left", className="header", id='write-sample-topics'),
 
 
 

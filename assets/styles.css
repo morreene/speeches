@@ -73,3 +73,9 @@
     border-color: rgb(98, 186, 181);
 }
 
+
+#page-content {
+    margin-left: 16rem;
+    margin-right: 2rem;
+    width: 75%;
+}

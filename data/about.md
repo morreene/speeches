@@ -1,6 +1,29 @@
 
 **Please note that this app is intended for testing purposes only.**
 
+## Paremeters
+
+#### Models
+* ChatGPT 3.5 Turbo 16k: it can accept 16k tokens or more than 10k words; and it is faster, can add more information and requirement; cheaper
+
+* ChatGPT 4: "more intelligent (?)", can only accept 8k tokens; slow and may have timeout errors; more expensive
+
+* CHatGPT Turbo 128K: not yet available
+
+
+
+#### Audience and Style:
+* Delegates/Heads of states: Diplomatic, formal, strategic, respectful, authoritative, policy-oriented, persuasive, factual, concise, collaborative,
+* Think tanks:  Diplomatic, Strategic, Authoritative, Analytical, Persuasive, Forward-thinking, Inclusive, Policy-focused, Insightful, Collaborative',
+* Academics: Scholarly, Analytical, Informed, Thought-provoking, Collaborative, Insightful, Respectful, Comprehensive, Evidence-based, Innovative',
+* Students: Inspirational, engaging, informative, motivational, relatable, empathetic, uplifting, visionary, accessible, encouraging',
+
+
+
+
+
+## Technonogy
+
 
 ### Text Generation with Retrieval Augmented Generation (RAG)
 
