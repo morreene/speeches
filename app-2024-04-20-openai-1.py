@@ -9,30 +9,21 @@ from dash import html, dcc, dash_table
 # import urllib.parse
 
 import pandas as pd
-import numpy as np
-from openai import AzureOpenAI
-
-# import openai
-# from openai.embeddings_utils import get_embedding, cosine_similarity
+import openai
+from openai.embeddings_utils import get_embedding, cosine_similarity
 # import pinecone
 
 #################################################
 #####     configurations
 #################################################
 
-# ##### openai-mais2
-# API_KEY = "d70b34fbd24d4016a5cf88dbc5f91e78"
-# RESOURCE_ENDPOINT = "https://openai-mais-2.openai.azure.com/"
-# openai.api_type = "azure"
-# openai.api_key = API_KEY
-# openai.api_base = RESOURCE_ENDPOINT
-# openai.api_version = "2023-07-01-preview"
-
-client = AzureOpenAI(
-  api_key = "d70b34fbd24d4016a5cf88dbc5f91e78",  
-  api_version = "2023-05-15",
-  azure_endpoint ="https://openai-mais-2.openai.azure.com/" 
-)
+##### openai-mais2
+API_KEY = "d70b34fbd24d4016a5cf88dbc5f91e78"
+RESOURCE_ENDPOINT = "https://openai-mais-2.openai.azure.com/"
+openai.api_type = "azure"
+openai.api_key = API_KEY
+openai.api_base = RESOURCE_ENDPOINT
+openai.api_version = "2023-07-01-preview"
 
 #################################################
 #####     Load data 
@@ -74,17 +65,11 @@ speechlist.columns = ['Folder','File Name','Number of paragraphs']
 ##### Speech app
 #################################################
 
-def cosine_similarity(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-
-def get_embedding(text, model="text-embedding-ada-002"): # model = "deployment_name"
-    return client.embeddings.create(input = [text], model=model).data[0].embedding
-
 # search through the reviews for a specific product
 def search_speech_db(df, user_query, ncontext=20):
     embedding = get_embedding(
         user_query,
-        model="test-embedding-ada-002" # engine should be set to the deployment name you chose when you deployed the text-embedding-ada-002 (Version 2) model
+        engine="test-embedding-ada-002" # engine should be set to the deployment name you chose when you deployed the text-embedding-ada-002 (Version 2) model
     )
     df["similarities"] = df.ada_v2.apply(lambda x: cosine_similarity(x, embedding))
 
@@ -128,8 +113,8 @@ def build_prompt_with_context(topic, context=[], nwords=300, audience='governmen
             """}]
 
 def write_speech(message, temperature=0, model="gpt-35-turbo-16k"):
-    response = client.chat.completions.create(
-        model=model,
+    response = openai.ChatCompletion.create(
+        engine=model,
         messages=message,
         temperature=temperature,
         max_tokens=3000,
@@ -214,7 +199,7 @@ sidebar = html.Div([
                             ], vertical=True, pills=False,
                         ), id="collapse",
                     ),
-                    html.Div([html.P("V0.3.1 (20240131)",
+                    html.Div([html.P("V0.3 (20240131)",
                                 # className="lead",
                             ),],id="blurb-bottom",
                     ),
