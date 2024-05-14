@@ -1,17 +1,32 @@
 from flask import Flask, session
 from flask_session import Session
+from dash import Dash, dcc, html
 import dash
-from dash import Dash, dcc, html, dash_table
 from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
+# to delete dash_table
+from dash import html, dcc, dash_table
+# import urllib.parse
+
 import pandas as pd
 import numpy as np
 from openai import AzureOpenAI
 
+# import openai
+# from openai.embeddings_utils import get_embedding, cosine_similarity
+# import pinecone
+
 #################################################
 #####     configurations
 #################################################
+
+# ##### openai-mais2
+# API_KEY = "d70b34fbd24d4016a5cf88dbc5f91e78"
+# RESOURCE_ENDPOINT = "https://openai-mais-2.openai.azure.com/"
+# openai.api_type = "azure"
+# openai.api_key = API_KEY
+# openai.api_base = RESOURCE_ENDPOINT
+# openai.api_version = "2023-07-01-preview"
 
 client = AzureOpenAI(
   api_key = "d70b34fbd24d4016a5cf88dbc5f91e78",  
@@ -128,7 +143,7 @@ def write_speech(message, temperature=0, model="gpt-35-turbo-16k"):
 #################################################
 
 # Hardcoded users (for demo purposes)
-USERS = {"admin": "admin", "ersd": "wtr2024", "ierd": "ierd"}
+USERS = {"admin": "admin", "ersd": "ersd", "w": "w"}
 
 server = Flask(__name__)
 server.config['SECRET_KEY'] = 'supersecretkey'
@@ -164,7 +179,7 @@ app.index_string = """<!DOCTYPE html>
 
 ### sidebar
 sidebar_header = dbc.Row([
-    html.A([dbc.Col(html.Img(src=app.get_asset_url("logo.png"),  width="180px", style={'margin-left':'15px', 'margin-bottom':'50px'}))], href="/page-2"),
+    html.A([dbc.Col(html.Img(src=app.get_asset_url("logo.png"),  width="180px", style={'margin-left':'15px', 'margin-bottom':'50px'}))], href="/page-1"),
     dbc.Col(
         html.Button(
             # use the Bootstrap navbar-toggler classes to style the toggle
@@ -191,7 +206,6 @@ sidebar = html.Div([
                     dbc.Collapse(
                         dbc.Nav([
                                 dbc.NavLink("Write ", href="/page-1", id="page-1-link"),
-                                # dbc.NavLink("Write", href="/page-1", id="page-1-link", style={'display': 'block' if session.get('username') == 'admin' else 'none'}),
                                 dbc.NavLink("Search", href="/page-2", id="page-2-link"),
                                 dbc.NavLink("Browse by topics", href="/page-3", id="page-3-link"),
                                 dbc.NavLink("Speech List", href="/page-4", id="page-4-link"),
@@ -273,23 +287,10 @@ def update_output(n_clicks, username, password):
     if n_clicks > 0:
         if username in USERS and USERS[username] == password:
             session['authed'] = True
-            session['username'] = username  # Store username in session
     if session.get('authed', False):
         return  {'display': 'none'}, {'display': 'block'}
     else:
         return {}, {'display': 'none'}
-
-
-
-@app.callback(
-    Output("page-1-link", "style"),
-    [Input("url", "pathname")])  # Trigger this callback whenever the URL changes
-def toggle_write_link_visibility(pathname):
-    if session.get('authed') and session.get('username') in ['admin', 'ersd']:
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
-
 
 # render content according to path
 @app.callback(Output("page-content", "children"),
@@ -297,12 +298,11 @@ def toggle_write_link_visibility(pathname):
               [Input("url", "pathname"), Input("logout-url", "pathname")])
 def render_page_content(pathname, logout_pathname):
     if logout_pathname == "/logout":  # Handle logout
-        # session.pop('authed', None)
+        session.pop('authed', None)
         session.clear()
         return dcc.Location(pathname="/login", id="redirect-to-login"), "/logout"
 
-    # elif pathname in ["/","/login", "/page-1"]:
-    elif pathname == "/page-1":
+    elif pathname in ["/","/login", "/page-1"]:
         return html.Div([
             html.H4("Draft Speech Using Guidelines & Background from Past Speeches and Knowledge Base (KB)", ),
             html.Br(),
@@ -464,9 +464,7 @@ def render_page_content(pathname, logout_pathname):
 
         ]), pathname
 
-    # Set "Search" as the home page
-    # elif pathname == "/page-2":    
-    elif pathname in ["/","/login", "/page-2"]:
+    elif pathname == "/page-2":
         return dbc.Container([
             html.H6("Search SpeechDB with embeddings", className="display-about"),
             html.Br(),
@@ -602,6 +600,13 @@ def render_page_content(pathname, logout_pathname):
 
 
 
+
+
+
+
+
+
+
 #################################################
 #####     Page Write
 #################################################
@@ -670,6 +675,29 @@ def write_draft_speech(n_clicks, topic, ncontext, model, nwords, temperature, au
                     ],
                 )
             ),  {'display': 'none'}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #################################################
