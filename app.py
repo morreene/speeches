@@ -200,7 +200,7 @@ sidebar = html.Div([
                             ], vertical=True, pills=False,
                         ), id="collapse",
                     ),
-                    html.Div([html.P("V0.3.1 (20240131)",
+                    html.Div([html.P("V0.3 (20240511)",
                                 # className="lead",
                             ),],id="blurb-bottom",
                     ),

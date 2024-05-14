@@ -65,5 +65,6 @@ You can use English, French, Spanish, Arabic, German and other languages.
                             |                                          |
 
 ## Change log
+* V0.3 (20240511): Add different user login; 
 * V0.2 (20240111): Rearrange menu; refined perameter selection; new prompt text; 
-* V0.1 (20231220): Initial version
+* V0.1 (20231220): Initial version;
