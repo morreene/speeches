@@ -50,10 +50,19 @@ styles = {
     'Students':                     'speak to students: Inspirational, engaging, informative, motivational, relatable, empathetic, uplifting, visionary, accessible, encouraging',
 }
 
-speechdb = pd.read_parquet('data/speech-text-embedding.parquet')
-contextdb = speechdb[speechdb['n_tokens']>50].copy()
-speechlist = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
-speechlist.columns = ['Folder','File Name','Number of paragraphs']
+# Try to load the parquet file, with error handling for Heroku deployment
+try:
+    speechdb = pd.read_parquet('data/speech-text-embedding1.parquet')
+    contextdb = speechdb[speechdb['n_tokens']>50].copy()
+    speechlist = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
+    speechlist.columns = ['Folder','File Name','Number of paragraphs']
+    print("Successfully loaded parquet file")
+except FileNotFoundError:
+    print("Warning: Could not find the parquet file. Using empty dataframes for demo/development purposes.")
+    # Create empty dataframes with the necessary structure for development/demo
+    speechdb = pd.DataFrame(columns=['Subfolder', 'FileName', 'ParagraphID', 'Text', 'n_tokens', 'ada_v2'])
+    contextdb = speechdb.copy()
+    speechlist = pd.DataFrame(columns=['Folder', 'File Name', 'Number of paragraphs'])
 
 #################################################
 ##### Speech app
@@ -640,43 +649,57 @@ def write_draft_speech(n_clicks, topic, ncontext, model, nwords, temperature, au
     if n_clicks  <=0  or n_clicks is None or topic=='' or topic is None:
         return "",  None
     else:
-        # ncontext = 20
-        # audience = 'delegates to the WTO'
-        # model="gpt-4"
-        # topic = 'reglobalization'
-        # ncontext = 20
-        context, c_min, c_max = generate_context(topic, ncontext)
+        try:
+            # ncontext = 20
+            # audience = 'delegates to the WTO'
+            # model="gpt-4"
+            # topic = 'reglobalization'
+            # ncontext = 20
+            context, c_min, c_max = generate_context(topic, ncontext)
 
-        context1 = ' '.join(context)
+            context1 = ' '.join(context)
 
-        # nwords = 300
-        message = build_prompt_with_context(topic, context, nwords, audience, additional)
-        # print(message)
-        # message1 = ' '.join(message)
+            # nwords = 300
+            message = build_prompt_with_context(topic, context, nwords, audience, additional)
+            # print(message)
+            # message1 = ' '.join(message)
 
-        draft = 'empty draft'
-        # temperature = 0
-        draft = write_speech(message, temperature, model)
+            draft = 'empty draft'
+            # temperature = 0
+            draft = write_speech(message, temperature, model)
 
-        print(str(len(context1.split())), str(len(draft.split())))
-    return html.Div(
-                dbc.Container(
-                    [
-                        dbc.Row(
-                            [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + \
-                                    '", temperature = ' + str(temperature) + ', context min score =' + str(c_min) +\
-                                        ', target words =' + str(nwords) + ', medel =' + str(model)
-                                        )],
-                            justify="between",
-                            style={"margin-bottom": "5px"},
-                        ),
-                        dbc.Row(
-                            [html.P(dcc.Markdown(draft))],
-                            justify="between",
-                        ),
-                    ],
-                )
-            ),  {'display': 'none'}
+            print(str(len(context1.split())), str(len(draft.split())))
+            return html.Div(
+                        dbc.Container(
+                            [
+                                dbc.Row(
+                                    [html.P('Draft (' + str(len(draft.split()))  +" words): " + 'topic = "' + topic + \
+                                            '", temperature = ' + str(temperature) + ', context min score =' + str(c_min) +\
+                                                ', target words =' + str(nwords) + ', medel =' + str(model)
+                                                )],
+                                    justify="between",
+                                    style={"margin-bottom": "5px"},
+                                ),
+                                dbc.Row(
+                                    [html.P(dcc.Markdown(draft))],
+                                    justify="between",
+                                ),
+                            ],
+                        )
+                    ),  {'display': 'none'}
+        except Exception as e:
+            print(f"Write draft error: {e}")
+            return html.Div(
+                        dbc.Container(
+                            [
+                                dbc.Row(
+                                    [html.P(f"An error occurred while generating the speech. This could be because the database is not loaded or accessible. Details: {str(e)}")],
+                                    justify="between",
+                                    style={"margin-bottom": "5px"},
+                                ),
+                            ],
+                        )
+                    ),  {'display': 'none'}
 
 
 #################################################
@@ -699,23 +722,24 @@ def search(n_clicks, n_submit, search_terms, top):
     if (n_clicks <=0 and n_submit is None) or search_terms=='' or search_terms is None:
         return "",  None
     else:
-        df = search_speech_db(speechdb, search_terms, ncontext=top)
-        df['meta'] = df['FileName'] + '\n Para: ' + df['ParagraphID'].astype(str) + '\n Score: ' + df['similarities'].astype(str) 
-        df['text'] = df['Text']
+        try:
+            df = search_speech_db(speechdb, search_terms, ncontext=top)
+            if len(df) == 0:
+                return html.Div(html.P("No results found or data not available. This could be because the database is not loaded.")), {'display': 'none'}
+                
+            df['meta'] = df['FileName'] + '\n Para: ' + df['ParagraphID'].astype(str) + '\n Score: ' + df['similarities'].astype(str) 
+            df['text'] = df['Text']
 
-        matches = df[['meta', 'text']]
-        matches.columns = ['Meta','Text (Paragraph)']
+            matches = df[['meta', 'text']]
+            matches.columns = ['Meta','Text (Paragraph)']
 
-        # Display the results in a datatable
-        return html.Div(style={'width': '100%'},
+            # Display the results in a datatable
+            return html.Div(style={'width': '100%'},
                         children=[
-                            # html.P('topic: ' + str(len(matches)) +" paragraphs, with score ranging from " + str(df['score'].min()) + ' to ' + str(df['score'].max())),
-                            # html.A('Download CSV', id='download-link', download="rawdata.csv", href=csv_string, target="_blank",),
                             html.Br(),
                             dbc.Row(
                                 [
                                     # dbc.Col(html.P('Find ' + str(len(matches)) +" paragraphs, with scores from " + str(df['similarities'].min()) + ' to ' + str(df['similarities'].max())), width={"size": 9, "offset": 0}),
-                                    # dbc.Col(html.A('Download CSV', id='download-link', download="rawdata.csv", href=csv_string, target="_blank"), width={"size": 3, "offset": 0}),
                                 ],
                                 justify="between",
                                 style={"margin-bottom": "20px"},
@@ -728,8 +752,6 @@ def search(n_clicks, n_submit, search_terms, top):
                                     data=matches.to_dict("records"),
 
                                     editable=False,
-                                    # filter_action="native",
-
                                     sort_action="native",
                                     sort_mode="multi",
                                     
@@ -746,29 +768,14 @@ def search(n_clicks, n_submit, search_terms, top):
                                     style_table={'width': '900px'},
                                     style_header={'fontWeight': 'bold'},
                                     style_cell={
-                                        # 'height': 'auto',
-                                        # 'minWidth': '50px', 
-                                        # 'maxWidth': '800px',
-                                        # # 'width': '100px',
-                                        # 'whiteSpace': 'normal',
                                         'textAlign': 'left',
                                         'fontSize': '14px',
                                         'verticalAlign': 'top',
                                         'whiteSpace': 'pre-line'
                                     },
                                     style_cell_conditional=[
-                                        # {'if': {'column_id': 'Symbol'},
-                                        #  'width': '50px'},
-                                        # {'if': {'column_id': 'Member'},
-                                        #  'width': '90px'},
-                                        # {'if': {'column_id': 'Date'},
-                                        #  'width': '80px'},
-                                        # {'if': {'column_id': 'Section/Topic'},
-                                        #  'width': '200px'},
                                         {'if': {'column_id': 'Text (Paragraph)'},
                                         'width': '1000px'},
-                                        # {'if': {'column_id': 'Score'},
-                                        #  'width': '80px', 'textAlign': 'right'},
                                     ],
                                     style_data_conditional=[
                                         {
@@ -780,6 +787,9 @@ def search(n_clicks, n_submit, search_terms, top):
                                 )
                             ]
                 ),  {'display': 'none'}
+        except Exception as e:
+            print(f"Search error: {e}")
+            return html.Div(html.P(f"An error occurred during search. This could be because the database is not loaded or accessible.")), {'display': 'none'}
 
 #################################################
 #####     Browse by Topic
@@ -800,25 +810,24 @@ def update_table(*args):
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     tag_clicked = ctx.states[button_id + '.children']
 
-    df = search_speech_db(speechdb, tags[tag_clicked], ncontext=50)
-    # df['meta'] = df['FileName'] + '\n' + df['symbol'] + '\n' + df['date'] + '\n Score: ' + df['score'].astype(str) 
-    df['meta'] = df['FileName'] + '\n Para: ' + df['ParagraphID'].astype(str) + '\n Score: ' + df['similarities'].astype(str) 
-    df['text'] = df['Text']
+    try:
+        df = search_speech_db(speechdb, tags[tag_clicked], ncontext=50)
+        if len(df) == 0:
+            return html.Div(html.P("No results found or data not available. This could be because the database is not loaded."))
+            
+        df['meta'] = df['FileName'] + '\n Para: ' + df['ParagraphID'].astype(str) + '\n Score: ' + df['similarities'].astype(str) 
+        df['text'] = df['Text']
 
-    matches = df[['meta', 'text']]
-    matches.columns = ['Meta','Text (Paragraph)']
+        matches = df[['meta', 'text']]
+        matches.columns = ['Meta','Text (Paragraph)']
 
-
-    # Display the results in a datatable
-    return html.Div(style={'width': '100%'},
+        # Display the results in a datatable
+        return html.Div(style={'width': '100%'},
                     children=[
-                        # html.P('Find ' + str(len(matches)) +" paragraphs, with score ranging from " + str(df['score'].min()) + ' to ' + str(df['score'].max())),
-                        # html.A('Download CSV', id='download-link', download="rawdata.csv", href=csv_string, target="_blank",),
                         html.Br(),
                         dbc.Row(
                             [
                                 # dbc.Col(html.P('Find ' + str(len(matches)) +" paragraphs, with scores from " + str(df['similarities'].min()) + ' to ' + str(df['similarities'].max())), width={"size": 9, "offset": 0}),
-                                # dbc.Col(html.A('Download CSV', id='download-link', download="rawdata.csv", href=csv_string, target="_blank"), width={"size": 3, "offset": 0}),
                             ],
                             justify="between",
                             style={"margin-bottom": "20px"},
@@ -831,8 +840,6 @@ def update_table(*args):
                                 data=matches.to_dict("records"),
 
                                 editable=False,
-                                # filter_action="native",
-
                                 sort_action="native",
                                 sort_mode="multi",
                                 
@@ -868,8 +875,9 @@ def update_table(*args):
                             )
                         ]
             )
-
-
+    except Exception as e:
+        print(f"Topic search error: {e}")
+        return html.Div(html.P(f"An error occurred during topic search. This could be because the database is not loaded or accessible."))
 
 #################################################
 # end of function page
