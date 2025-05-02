@@ -8,10 +8,26 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
 from openai import AzureOpenAI
+import requests
 
 #################################################
 #####     configurations
 #################################################
+
+# Function to get the server's public IP address
+def get_public_ip():
+    try:
+        response = requests.get('https://api.ipify.org?format=json', timeout=5)
+        if response.status_code == 200:
+            return response.json()['ip']
+        return "Could not determine IP"
+    except Exception as e:
+        print(f"Error getting public IP: {e}")
+        return "Error getting IP"
+
+# Get the public IP address once at startup
+PUBLIC_IP = get_public_ip()
+print(f"Application public IP: {PUBLIC_IP}")
 
 client = AzureOpenAI(
   api_key = "deca3c66de3649338b35ab92c04ba309",  
@@ -260,6 +276,10 @@ app.layout = html.Div([
                                     dbc.Button(id='login-button', children='Sign in', n_clicks=0, color="primary", className="my-custom-button", style={"width": 300}),
                                 ], 
                             ),
+                            html.Hr(),
+                            html.Div([
+                                html.P(f"App Public IP: {PUBLIC_IP}", style={"color": "gray", "font-size": "12px"}),
+                            ]),
                         ], className="d-grid gap-2 col-8 mx-auto",
                     ),
                     className="text-center",
@@ -610,6 +630,12 @@ def render_page_content(pathname):
                                             "align": "left",
                                             # "verticalAlign": "top"
                                         }),
+                            html.Hr(),
+                            html.Div([
+                                html.H6("Application Information:", style={"margin-top": "20px"}),
+                                html.P(f"Public IP Address: {PUBLIC_IP}", style={"color": "blue", "font-weight": "bold"}),
+                                html.P("Note: Add this IP to your Azure OpenAI firewall allowed list if you're experiencing access issues.")
+                            ])
                 ])
 
     else:
