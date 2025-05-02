@@ -14,9 +14,9 @@ from openai import AzureOpenAI
 #################################################
 
 client = AzureOpenAI(
-  api_key = "d70b34fbd24d4016a5cf88dbc5f91e78",  
+  api_key = "deca3c66de3649338b35ab92c04ba309",  
   api_version = "2023-05-15",
-  azure_endpoint ="https://openai-mais-2.openai.azure.com/" 
+  azure_endpoint ="https://oaishrp02.openai.azure.com/" 
 )
 
 #################################################
@@ -62,14 +62,14 @@ speechlist.columns = ['Folder','File Name','Number of paragraphs']
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-def get_embedding(text, model="text-embedding-ada-002"): # model = "deployment_name"
+def get_embedding(text, model="text-embedding-ada-002-yu-7jo4bn"): # model = "deployment_name"
     return client.embeddings.create(input = [text], model=model).data[0].embedding
 
 # search through the reviews for a specific product
 def search_speech_db(df, user_query, ncontext=20):
     embedding = get_embedding(
         user_query,
-        model="test-embedding-ada-002" # engine should be set to the deployment name you chose when you deployed the text-embedding-ada-002 (Version 2) model
+        model="text-embedding-ada-002-yu-7jo4bn" # engine should be set to the deployment name you chose when you deployed the text-embedding-ada-002 (Version 2) model
     )
     df["similarities"] = df.ada_v2.apply(lambda x: cosine_similarity(x, embedding))
 
@@ -222,8 +222,7 @@ def toggle_active_links(pathname):
     return [pathname == f"/page-{i}" for i in range(1, 6)]
 
 app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    dcc.Location(id='logout-url', refresh=False),  # Added logout URL component
+    dcc.Location(id='url', refresh=True),
     # login facet
     dbc.Container(
         dbc.Row(
@@ -266,16 +265,26 @@ app.layout = html.Div([
 @app.callback(
     [Output('login-facet', 'style'),
      Output('page-layout', 'style')],
-    [Input('login-button', 'n_clicks')],
+    [Input('login-button', 'n_clicks'),
+     Input('url', 'pathname')],
     [State('username', 'value'), State('password', 'value')]
 )
-def update_output(n_clicks, username, password):
-    if n_clicks > 0:
+def update_output(n_clicks, pathname, username, password):
+    ctx = dash.callback_context
+    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    if trigger_id == 'url' and pathname == '/logout':
+        # Handle logout
+        session.clear()
+        return {}, {'display': 'none'}
+    
+    if trigger_id == 'login-button' and n_clicks > 0:
         if username in USERS and USERS[username] == password:
             session['authed'] = True
             session['username'] = username  # Store username in session
+    
     if session.get('authed', False):
-        return  {'display': 'none'}, {'display': 'block'}
+        return {'display': 'none'}, {'display': 'block'}
     else:
         return {}, {'display': 'none'}
 
@@ -293,14 +302,12 @@ def toggle_write_link_visibility(pathname):
 
 # render content according to path
 @app.callback(Output("page-content", "children"),
-              Output("logout-url", "pathname"),  # Added callback output for logout URL
-              [Input("url", "pathname"), Input("logout-url", "pathname")])
-def render_page_content(pathname, logout_pathname):
-    if logout_pathname == "/logout":  # Handle logout
-        # session.pop('authed', None)
-        session.clear()
-        return dcc.Location(pathname="/login", id="redirect-to-login"), "/logout"
-
+              [Input("url", "pathname")])
+def render_page_content(pathname):
+    if pathname == "/logout":
+        # Just return an empty div, the other callback will handle the logout
+        return html.Div()
+        
     # elif pathname in ["/","/login", "/page-1"]:
     elif pathname == "/page-1":
         return html.Div([
@@ -462,7 +469,7 @@ def render_page_content(pathname, logout_pathname):
 
 
 
-        ]), pathname
+        ])
 
     # Set "Search" as the home page
     # elif pathname == "/page-2":    
@@ -534,7 +541,7 @@ def render_page_content(pathname, logout_pathname):
                         dcc.Loading(id="loading", type="default", children=html.Div(id="search-results"), fullscreen=False),
                     ], width=12),
             ], justify="center"),
-        ]), pathname
+        ])
     
     elif pathname == "/page-3":
         return dbc.Container([
@@ -548,7 +555,7 @@ def render_page_content(pathname, logout_pathname):
                         dcc.Loading(id="loading", type="default", children=html.Div(id="search-results3"), fullscreen=False),
                     ], width=12),
             ], justify="center"),
-        ]), pathname
+        ])
 
     elif pathname == "/page-4":
         return html.Div([
@@ -580,7 +587,7 @@ def render_page_content(pathname, logout_pathname):
                         'fontWeight': 'bold'
                     }
                 )
-            ]), pathname
+            ])
 
     elif pathname == "/page-5":
         return html.Div([
@@ -594,10 +601,10 @@ def render_page_content(pathname, logout_pathname):
                                             "align": "left",
                                             # "verticalAlign": "top"
                                         }),
-                ]), pathname
+                ])
 
     else:
-        return html.P("404: Not found"), pathname
+        return html.P("404: Not found")
 
 
 
