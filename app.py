@@ -68,7 +68,8 @@ styles = {
 
 # Try to load the parquet file, with error handling for Heroku deployment
 try:
-    speechdb = pd.read_parquet('data/speech-text-embedding-20240508.parquet')
+    # speechdb = pd.read_parquet('data/speech-text-embedding-20240508.parquet')
+    speechdb = pd.read_parquet('data/speech-text-embedding-20250502.parquet')
     contextdb = speechdb[speechdb['n_tokens']>50].copy()
     speechlist = speechdb.groupby(['Subfolder','FileName']).size().reset_index(name='NParas')
     speechlist.columns = ['Folder','File Name','Number of paragraphs']
